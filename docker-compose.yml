@@ -1,0 +1,48 @@
+
+services:
+  app:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: hackatonai_web:latest
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongodb:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: knowledgehub-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: knowledgehub
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - knowledgehub-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/knowledgehub --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  knowledgehub-network:     
+volumes:
+  node_modules:
+  mongodb_data:
