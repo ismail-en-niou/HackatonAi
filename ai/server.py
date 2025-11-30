@@ -52,4 +52,4 @@ def get_file(filename: str):
 @app.post("/query")
 def query_endpoint(query: str = Body(..., embed=True)):
     answer = query_llm(query)
-    return {"answer": answer}
+    return answer

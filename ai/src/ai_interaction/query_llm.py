@@ -21,4 +21,4 @@ Question: {query}
 Answer:
 """
     response = client.chat(model="qwen2.5:3b", messages=[{"role": "user", "content": prompt}])
-    return response["message"]["content"]
+    return {"answer": response["message"]["content"], "context_files": [doc.metadata['source'].split("/")[-1] for doc, _score in chunks]}
