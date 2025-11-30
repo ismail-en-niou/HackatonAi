@@ -35,4 +35,4 @@ RUN uv run python main.py init_db -y
 EXPOSE 8000 11434
 
 # Use the entrypoint script
-CMD ["uv", "run", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "ollama serve & uv run uvicorn server:app --host 0.0.0.0 --port 8000"]

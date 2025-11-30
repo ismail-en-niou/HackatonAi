@@ -9,6 +9,7 @@ services:
       PORT: 3000
       HOSTNAME: 0.0.0.0
       MONGODB_URI: mongodb://mongo:27017/mydb
+      AI_URL: http://ai:8000
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -48,6 +49,8 @@ services:
     volumes:
       - ./ai/data:/app/data
       - chroma_db:/app/chroma_db
+    networks:
+      - default
 
 volumes:
   mongo_data:

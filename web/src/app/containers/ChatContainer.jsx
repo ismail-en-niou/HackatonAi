@@ -143,28 +143,50 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
     setAttachedFile(null);
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(async () => {
+    // Call AI proxy endpoint
+    try {
+      const token = Cookies.get('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/chats/query', {
+        method: 'POST',
+        headers,
+        credentials: 'same-origin',
+        body: JSON.stringify({ query: inputMessage }),
+      });
+
+      const data = await res.json();
+      const text = typeof data === 'string' ? data : (data.text || data.answer || data.response || JSON.stringify(data));
+
       const botResponse = {
         id: messages.length + 2,
-        text: "Je recherche les informations dans notre base de connaissances... Voici ce que j'ai trouvé concernant votre demande.",
-        sender: "bot",
+        text,
+        sender: 'bot',
         timestamp: new Date(),
-        sources: [
-          { title: "Procédure Opérationnelle Standard", excerpt: "Section 4.2 - Gestion des documents techniques" },
-          { title: "Guide d'Utilisation", excerpt: "Chapitre 3 - Bonnes pratiques métier" }
-        ],
+        sources: data.sources || null,
         liked: null
       };
+
       setMessages(prev => [...prev, botResponse]);
-      // Persist bot response to conversation
       try {
         await persistMessages([botResponse]);
       } catch (err) {
         console.error('Persist bot response failed', err);
       }
+    } catch (err) {
+      console.error('AI query failed', err);
+      const botResponse = {
+        id: messages.length + 2,
+        text: "Désolé, une erreur est survenue lors de la requête au modèle.",
+        sender: 'bot',
+        timestamp: new Date(),
+        liked: null
+      };
+      setMessages(prev => [...prev, botResponse]);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const handleKeyPress = (e) => {
