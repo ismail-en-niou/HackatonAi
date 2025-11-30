@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, Bot, User, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,6 +16,38 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: 'same-origin'
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.success) {
+            router.replace('/');
+          } else {
+            Cookies.remove('token');
+            Cookies.remove('user');
+          }
+        } else {
+          Cookies.remove('token');
+          Cookies.remove('user');
+        }
+      } catch (e) {
+        if (!cancelled) {
+          Cookies.remove('token');
+          Cookies.remove('user');
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,7 +103,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        Cookies.set('token', data.token);
+        Cookies.set('token', data.token, { expires: 1 });
         Cookies.set('user', JSON.stringify(data.user));
         router.push('/');
       } else {
@@ -83,36 +116,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      // Try to login with demo account
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: "demo@company.com",
-          password: "demo123",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        Cookies.set('token', data.token);
-        Cookies.set('user', JSON.stringify(data.user));
-        router.push('/');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
 
   const handleQuickRegister = () => {
