@@ -8,7 +8,7 @@ services:
       NODE_ENV: development
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      MONGO_URI: mongodb://mongo:27017/mydb
+      MONGODB_URI: mongodb://mongo:27017/mydb
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -17,7 +17,10 @@ services:
       - /app/node_modules
     command: npm run dev
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+    networks:
+      - default
 
   mongo:
     image: mongo:6.0
@@ -27,6 +30,17 @@ services:
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - default
 
 volumes:
   mongo_data:
+networks:
+  default:
+    driver: bridge
