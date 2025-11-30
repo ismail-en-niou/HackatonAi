@@ -2,7 +2,6 @@
 
 # Start all services in detached mode
 up:
-	mkdir -p /tmp/app/data
 	docker compose up -d
 
 # Stop and remove all services
@@ -16,7 +15,6 @@ build:
 # Restart all services
 restart:
 	docker compose down
-	mkdir -p /tmp/app/data
 	docker compose up -d
 
 # View logs (follow mode)
