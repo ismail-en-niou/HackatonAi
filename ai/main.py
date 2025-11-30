@@ -9,7 +9,10 @@ def main():
         return
     command = sys.argv[1]
     if command == "init_db":
-        init_db()
+        if (len(sys.argv) > 2 and sys.argv[2] == "-y"):
+            init_db(y=True)
+        else:
+            init_db()
     elif command == "query":
         if len(sys.argv) < 3:
             print("Usage: python main.py query <your query here>")

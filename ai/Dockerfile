@@ -28,7 +28,10 @@ RUN chmod +x /app/entrypoint.sh
 RUN uv sync
 
 # Pre-pull the Qwen model so startup is fast.
-RUN ollama pull qwen2.5:3b || (echo "Failed pulling qwen2.5:3b" && exit 1)
+# Note: don't pull model during build since the Ollama server isn't running in build stage.
+# The entrypoint starts Ollama and pulls the model on container start.
+
+RUN uv run python main.py init_db -y
 
 # Expose application port (uvicorn default) and Ollama port
 EXPOSE 8000 11434

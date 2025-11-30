@@ -7,12 +7,13 @@ import os
 import shutil
 
 
-def init_db():
+def init_db(y=False):
     if os.path.exists("./chroma_db"):
         print("ChromaDB already initialized.")
-        res = input("Do you want to re-initialize it? This will delete existing data. (y/n): ")
-        if res.lower() != 'y':
-            return
+        if not y:
+            res = input("Do you want to re-initialize it? This will delete existing data. (y/n): ")
+            if res.lower() != 'y':
+                return
         shutil.rmtree("./chroma_db", ignore_errors=True)
         print("Deleted existing ChromaDB.")
     docs = load_documents_from_directory("data")
