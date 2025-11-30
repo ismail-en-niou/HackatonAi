@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_MODULE="server:app"
-HOST="0.0.0.0"
-PORT="8000"
 MODEL_NAME="qwen2.5:3b"
-OLLAMA_API="http://localhost:11434"
 MAX_WAIT=60
+OLLAMA_API="http://localhost:11434"
 
 log() { printf "[entrypoint] %s\n" "$*"; }
 
@@ -42,7 +39,4 @@ if ! ollama list | awk '{print $1}' | grep -Fxq "$MODEL_NAME"; then
 else
   log "Model $MODEL_NAME already present."
 fi
-
-# Launch the Python application via uv
-log "Starting application module $APP_MODULE on $HOST:$PORT"
-exec uv run uvicorn "$APP_MODULE" --host "$HOST" --port "$PORT" --reload
+log "Entrypoint script completed."

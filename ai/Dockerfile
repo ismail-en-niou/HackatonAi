@@ -21,15 +21,13 @@ WORKDIR /app
 # Copy application code (including entrypoint) into image
 COPY . /app
 
-# Make sure entrypoint script is executable
-RUN chmod +x /app/entrypoint.sh
-
 # Sync Python dependencies (requires pyproject.toml in /app)
 RUN uv sync
 
-# Pre-pull the Qwen model so startup is fast.
-# Note: don't pull model during build since the Ollama server isn't running in build stage.
-# The entrypoint starts Ollama and pulls the model on container start.
+# Make sure entrypoint script is executable
+RUN chmod +x /app/init_ollama.sh
+	
+RUN /app/init_ollama.sh
 
 RUN uv run python main.py init_db -y
 
@@ -37,4 +35,4 @@ RUN uv run python main.py init_db -y
 EXPOSE 8000 11434
 
 # Use the entrypoint script
-CMD ["/app/entrypoint.sh"]
+CMD ["uv", "run", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]

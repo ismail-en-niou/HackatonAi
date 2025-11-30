@@ -46,11 +46,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./ai:/app
-    command: ["bash", "/app/entrypoint.sh"]
+      - ./ai/data:/app/data
+      - chroma_db:/app/chroma_db
 
 volumes:
   mongo_data:
+  chroma_db:
 networks:
   default:
     driver: bridge
