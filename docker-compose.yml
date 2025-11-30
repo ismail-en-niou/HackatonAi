@@ -28,5 +28,15 @@ services:
       - mongo_data:/data/db
     restart: unless-stopped
 
+  ai:
+    build:
+      context: ./ai
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai:/app
+    command: ["bash", "/app/entrypoint.sh"]
+
 volumes:
   mongo_data:
