@@ -3,10 +3,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { Send, Paperclip, Mic, Bot, User, ThumbsUp, ThumbsDown, Copy, RotateCw, Trash } from "lucide-react";
+import { useNotification } from "../components/NotificationProvider";
+import { Send, Paperclip, Mic, Bot, User, ThumbsUp, ThumbsDown, Copy, RotateCw, Trash, Eraser } from "lucide-react";
 
 export const ChatContainer = ({ initialMessages = null, conversationId = null }) => {
   // initialize messages from initialMessages prop if provided
+  const { showToast, showConfirm } = useNotification();
   const parseIncoming = (incoming) => {
     try {
       return incoming.map((m, idx) => ({
@@ -230,7 +232,14 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
 
   const handleDeleteConversation = async () => {
     if (!savedConversationId) return;
-    if (!confirm('Supprimer cette conversation ? Cette action est définitive.')) return;
+    const confirmed = await showConfirm({
+      title: 'Supprimer la conversation',
+      message: 'Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est définitive.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger'
+    });
+    if (!confirmed) return;
     try {
       // Local conversation deletion
       if (String(savedConversationId).startsWith('local:')) {
@@ -239,6 +248,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         try { localChats = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { localChats = []; }
         const filtered = localChats.filter(c => c._id !== savedConversationId);
         try { localStorage.setItem(key, JSON.stringify(filtered)); } catch (e) { /* ignore */ }
+        showToast('Conversation supprimée avec succès', 'success');
         // Redirect to generic chat list/home
         router.push('/chats');
         return;
@@ -250,14 +260,38 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
       const res = await fetch(`/api/chats/${savedConversationId}`, { method: 'DELETE', headers, credentials: 'same-origin' });
       const data = await res.json();
       if (data?.success) {
+        showToast('Conversation supprimée avec succès', 'success');
         router.push('/chats');
       } else {
-        alert(data?.error || 'Échec de la suppression');
+        showToast(data?.error || 'Échec de la suppression', 'error');
       }
     } catch (e) {
       console.error('Delete failed', e);
-      alert('Erreur lors de la suppression');
+      showToast('Erreur lors de la suppression', 'error');
     }
+  };
+
+  const handleClearChat = async () => {
+    const confirmed = await showConfirm({
+      title: 'Effacer la conversation',
+      message: 'Voulez-vous effacer tous les messages de cette conversation ?',
+      confirmText: 'Effacer',
+      cancelText: 'Annuler',
+      type: 'warning'
+    });
+    if (!confirmed) return;
+    
+    // Reset to initial message
+    setMessages([
+      {
+        id: 1,
+        text: "Bonjour ! Je suis votre assistant KnowledgeHub. Comment puis-je vous aider à trouver des informations aujourd'hui ?",
+        sender: "bot",
+        timestamp: new Date(),
+        liked: null
+      }
+    ]);
+    showToast('Conversation effacée', 'success');
   };
 
   return (
@@ -274,16 +308,26 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
               <p className="text-sm text-gray-600 dark:text-slate-400">En ligne • Prêt à vous aider</p>
             </div>
           </div>
-          {savedConversationId && (
+          <div className="flex items-center space-x-2">
             <button
-              onClick={handleDeleteConversation}
-              className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-sm"
-              title="Supprimer la conversation"
+              onClick={handleClearChat}
+              className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-white/10 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-sm"
+              title="Effacer la conversation"
             >
-              <Trash className="w-4 h-4" />
-              <span className="hidden sm:inline">Supprimer</span>
+              <Eraser className="w-4 h-4" />
+              <span className="hidden sm:inline">Effacer</span>
             </button>
-          )}
+            {savedConversationId && (
+              <button
+                onClick={handleDeleteConversation}
+                className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-sm"
+                title="Supprimer la conversation"
+              >
+                <Trash className="w-4 h-4" />
+                <span className="hidden sm:inline">Supprimer</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

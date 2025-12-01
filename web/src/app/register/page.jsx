@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useNotification } from "../components/NotificationProvider";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { showToast } = useNotification();
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -88,6 +90,7 @@ const RegisterPage = () => {
 
       if (response.ok && data.success) {
         setSuccess("Account created successfully! Redirecting to login...");
+        showToast('Compte créé avec succès !', 'success');
         
         // Clear form
         setFormData({
@@ -103,9 +106,11 @@ const RegisterPage = () => {
         }, 2000);
       } else {
         setError(data.error || 'Registration failed. Please try again.');
+        showToast(data.error || 'Échec de l\'inscription', 'error');
       }
     } catch (err) {
       setError('Network error. Please check your connection and try again.');
+      showToast('Erreur réseau', 'error');
     } finally {
       setIsLoading(false);
     }

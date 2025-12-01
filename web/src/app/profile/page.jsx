@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTheme } from '../ThemeProvider';
+import { useNotification } from '../components/NotificationProvider';
+import { User, Mail, Shield, Moon, Sun, Bell, BellOff, Lock, MessageSquare, Library, LogOut, RefreshCw, Settings } from 'lucide-react';
 
 export default function ProfilePage() {
 	const [user, setUser] = useState(null);
@@ -12,7 +15,11 @@ export default function ProfilePage() {
 	const [role, setRole] = useState('user');
 	const [settings, setSettings] = useState({ theme: 'dark', notifications: true });
 	const [isSaving, setIsSaving] = useState(false);
+	const [stats, setStats] = useState({ conversations: 0, messages: 0, filesUploaded: 0 });
+	const [showPasswordChange, setShowPasswordChange] = useState(false);
+	const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
 	const { theme, setTheme } = useTheme();
+	const { showToast } = useNotification();
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 
@@ -42,6 +49,40 @@ export default function ProfilePage() {
 				// ignore malformed cookie
 			}
 		}
+
+		// Fetch user stats
+		const fetchStats = async () => {
+			try {
+				const token = Cookies.get('token');
+				if (token) {
+					const [chatsRes, filesRes] = await Promise.all([
+						fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+						fetch('/api/library', { credentials: 'same-origin', cache: 'no-store' })
+					]);
+					
+					let conversations = 0;
+					let messages = 0;
+					let filesUploaded = 0;
+
+					if (chatsRes.ok) {
+						const chatsData = await chatsRes.json();
+						conversations = chatsData.conversations?.length || 0;
+						messages = (chatsData.conversations || []).reduce((sum, c) => sum + (c.messages?.length || 0), 0);
+					}
+
+					if (filesRes.ok) {
+						const filesData = await filesRes.json();
+						filesUploaded = filesData.files?.length || 0;
+					}
+
+					setStats({ conversations, messages, filesUploaded });
+				}
+			} catch (err) {
+				console.error('Failed to fetch stats', err);
+			}
+		};
+
+		fetchStats();
 		setLoading(false);
 	}, [setTheme]);
 
@@ -71,20 +112,50 @@ export default function ProfilePage() {
 				if (data?.success && data.user) {
 					Cookies.set('user', JSON.stringify(data.user));
 					setUser(data.user);
+					showToast('Paramètres sauvegardés avec succès', 'success');
+				} else {
+					showToast('Échec de la sauvegarde', 'error');
 				}
 			} else {
 				const updatedUser = { ...(user || {}), name, email };
 				Cookies.set('user', JSON.stringify(updatedUser));
 				setUser(updatedUser);
+				showToast('Paramètres sauvegardés localement', 'success');
 			}
 		} catch (err) {
 			console.error('Failed to save settings', err);
+			showToast('Erreur lors de la sauvegarde', 'error');
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
 	const initials = (name || email || 'U').trim().split(/\s+/).slice(0,2).map(p => p[0]?.toUpperCase()).join('');
+
+	const handlePasswordChange = async () => {
+		if (!passwords.new || passwords.new !== passwords.confirm) {
+			showToast('Les mots de passe ne correspondent pas', 'error');
+			return;
+		}
+		try {
+			const token = Cookies.get('token');
+			const res = await fetch('/api/auth/profile', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+				body: JSON.stringify({ currentPassword: passwords.current, newPassword: passwords.new })
+			});
+			const data = await res.json();
+			if (data?.success) {
+				showToast('Mot de passe mis à jour', 'success');
+				setPasswords({ current: '', new: '', confirm: '' });
+				setShowPasswordChange(false);
+			} else {
+				showToast(data?.error || 'Échec', 'error');
+			}
+		} catch (err) {
+			showToast('Erreur réseau', 'error');
+		}
+	};
 
 	return (
 		<main className="min-h-screen w-full relative overflow-x-hidden bg-gradient-to-br from-white via-indigo-50/40 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40 transition-colors">
@@ -135,13 +206,75 @@ export default function ProfilePage() {
 				)}
 
 				{user && (
+					<>
+						{/* Stats Cards */}
+						<div className="grid gap-4 sm:grid-cols-3 mb-8">
+							<div className="group rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+								<div className="flex items-center justify-between">
+									<div>
+										<p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
+										<p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.conversations}</p>
+									</div>
+									<MessageSquare className="w-8 h-8 text-indigo-500 dark:text-indigo-400" />
+								</div>
+							</div>
+							<div className="group rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+								<div className="flex items-center justify-between">
+									<div>
+										<p className="text-xs font-medium text-gray-500 dark:text-gray-400">Messages</p>
+										<p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.messages}</p>
+									</div>
+									<Mail className="w-8 h-8 text-purple-500 dark:text-purple-400" />
+								</div>
+							</div>
+							<div className="group rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+								<div className="flex items-center justify-between">
+									<div>
+										<p className="text-xs font-medium text-gray-500 dark:text-gray-400">Bibliothèque</p>
+										<p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.filesUploaded}</p>
+									</div>
+									<Library className="w-8 h-8 text-green-500 dark:text-green-400" />
+								</div>
+							</div>
+						</div>
+
+						{/* Quick Actions */}
+						<div className="mb-8 rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-5 shadow-sm">
+							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+								<Settings className="w-4 h-4" />
+								Actions rapides
+							</h2>
+							<div className="grid sm:grid-cols-2 gap-3">
+								<Link href="/chats" className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition group">
+									<MessageSquare className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+									<div>
+										<p className="text-sm font-medium text-gray-900 dark:text-white">Mes conversations</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">Voir toutes vos discussions</p>
+									</div>
+								</Link>
+								<Link href="/library" className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition group">
+									<Library className="w-5 h-5 text-green-600 dark:text-green-400" />
+									<div>
+										<p className="text-sm font-medium text-gray-900 dark:text-white">Bibliothèque</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">Gérer vos fichiers</p>
+									</div>
+								</Link>
+							</div>
+						</div>
+
 					<div className="grid gap-8 md:grid-cols-2">
 						{/* Account Card */}
 						<section className="group rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition">
-							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4">Compte</h2>
+							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+								<User className="w-4 h-4" />
+								Compte
+							</h2>
 							<div className="space-y-4">
 								<div>
-									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nom</label>
+									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
+										<User className="w-3 h-3" />
+										Nom
+									</label>
 									<input 
 										className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
 										value={name} 
@@ -149,7 +282,10 @@ export default function ProfilePage() {
 									/>
 								</div>
 								<div>
-									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
+									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
+										<Mail className="w-3 h-3" />
+										Email
+									</label>
 									<input 
 										className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
 										value={email} 
@@ -157,7 +293,10 @@ export default function ProfilePage() {
 									/>
 								</div>
 								<div>
-									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Rôle</label>
+									<label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
+										<Shield className="w-3 h-3" />
+										Rôle
+									</label>
 									<input 
 										readOnly 
 										className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-400" 
@@ -169,13 +308,19 @@ export default function ProfilePage() {
 
 						{/* Preferences Card */}
 						<section className="group rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition">
-							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4">Préférences</h2>
+							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+								{theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+								Préférences
+							</h2>
 							<div className="space-y-5">
 								{/* Theme Switch */}
 								<div className="flex items-center justify-between">
-									<div>
-										<p className="text-xs font-medium text-gray-600 dark:text-gray-300">Mode sombre</p>
-										<p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Améliore le confort visuel</p>
+									<div className="flex items-center gap-2">
+										{theme === 'dark' ? <Moon className="w-4 h-4 text-gray-600 dark:text-gray-300" /> : <Sun className="w-4 h-4 text-gray-600 dark:text-gray-300" />}
+										<div>
+											<p className="text-xs font-medium text-gray-600 dark:text-gray-300">Mode sombre</p>
+											<p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Améliore le confort visuel</p>
+										</div>
 									</div>
 									<button
 										onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -188,9 +333,12 @@ export default function ProfilePage() {
 
 								{/* Notifications Switch */}
 								<div className="flex items-center justify-between">
-									<div>
-										<p className="text-xs font-medium text-gray-600 dark:text-gray-300">Notifications email</p>
-										<p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Recevoir des alertes importantes</p>
+									<div className="flex items-center gap-2">
+										{settings.notifications ? <Bell className="w-4 h-4 text-gray-600 dark:text-gray-300" /> : <BellOff className="w-4 h-4 text-gray-600 dark:text-gray-300" />}
+										<div>
+											<p className="text-xs font-medium text-gray-600 dark:text-gray-300">Notifications email</p>
+											<p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Recevoir des alertes importantes</p>
+										</div>
 									</div>
 									<button
 										onClick={() => setSettings(prev => ({ ...prev, notifications: !prev.notifications }))}
@@ -210,9 +358,60 @@ export default function ProfilePage() {
 							</div>
 						</section>
 
+						{/* Password Change Section */}
+						<section className="md:col-span-2 group rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition">
+							<h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+								<Lock className="w-4 h-4" />
+								Sécurité
+							</h2>
+							{!showPasswordChange ? (
+								<button
+									onClick={() => setShowPasswordChange(true)}
+									className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-slate-600 transition"
+								>
+									Changer le mot de passe
+								</button>
+							) : (
+								<div className="space-y-3">
+									<input
+										type="password"
+										placeholder="Mot de passe actuel"
+										value={passwords.current}
+										onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
+										className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+									/>
+									<input
+										type="password"
+										placeholder="Nouveau mot de passe"
+										value={passwords.new}
+										onChange={(e) => setPasswords(p => ({ ...p, new: e.target.value }))}
+										className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+									/>
+									<input
+										type="password"
+										placeholder="Confirmer le nouveau"
+										value={passwords.confirm}
+										onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
+										className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+									/>
+									<div className="flex gap-2">
+										<button onClick={handlePasswordChange} className="px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
+											Mettre à jour
+										</button>
+										<button onClick={() => { setShowPasswordChange(false); setPasswords({ current: '', new: '', confirm: '' }); }} className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-slate-600 transition">
+											Annuler
+										</button>
+									</div>
+								</div>
+							)}
+						</section>
+
 						{/* Advanced / Danger Zone */}
 						<section className="md:col-span-2 group rounded-2xl border border-red-200/40 dark:border-red-900/40 bg-red-50/40 dark:bg-red-900/10 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition">
-							<h2 className="text-sm font-semibold uppercase tracking-wide text-red-600 dark:text-red-400 mb-4">Zone sensible</h2>
+							<h2 className="text-sm font-semibold uppercase tracking-wide text-red-600 dark:text-red-400 mb-4 flex items-center gap-2">
+								<RefreshCw className="w-4 h-4" />
+								Zone sensible
+							</h2>
 							<p className="text-xs text-red-700 dark:text-red-300 mb-3 max-w-prose">La suppression du jeton local peut résoudre des problèmes de session. Cette action ne supprime pas votre compte.</p>
 							<button
 								onClick={() => { Cookies.remove('token'); Cookies.remove('user'); alert('Session locale réinitialisée. Veuillez vous reconnecter.'); }}
@@ -222,6 +421,7 @@ export default function ProfilePage() {
 							</button>
 						</section>
 					</div>
+					</>
 				)}
 			</div>
 		</main>

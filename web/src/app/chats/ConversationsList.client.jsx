@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
-import { Trash } from 'lucide-react';
+import { Trash, Trash2 } from 'lucide-react';
+import { useNotification } from '../components/NotificationProvider';
 
 export default function ConversationsList({ initialConversations }) {
   const [conversations, setConversations] = useState(initialConversations || []);
+  const { showToast, showConfirm } = useNotification();
   const token = Cookies.get('token');
   const userRaw = Cookies.get('user');
   let currentUserId = null;
@@ -14,7 +16,14 @@ export default function ConversationsList({ initialConversations }) {
 
   const handleDelete = async (id) => {
     if (!id) return;
-    if (!confirm('Supprimer cette conversation ?')) return;
+    const confirmed = await showConfirm({
+      title: 'Supprimer la conversation',
+      message: 'Êtes-vous sûr de vouloir supprimer cette conversation ?',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger'
+    });
+    if (!confirmed) return;
     try {
       const headers = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -22,12 +31,66 @@ export default function ConversationsList({ initialConversations }) {
       const data = await res.json();
       if (data?.success) {
         setConversations(prev => prev.filter(c => c._id !== id));
+        showToast('Conversation supprimée avec succès', 'success');
       } else {
-        alert(data?.error || 'Échec de la suppression');
+        showToast(data?.error || 'Échec de la suppression', 'error');
       }
     } catch (e) {
       console.error('Failed to delete conversation', e);
-      alert('Erreur réseau');
+      showToast('Erreur réseau', 'error');
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    const ownedConversations = conversations.filter(c => c.user && currentUserId && String(c.user) === String(currentUserId));
+    if (ownedConversations.length === 0) {
+      showToast('Aucune conversation à supprimer', 'info');
+      return;
+    }
+    const confirmed = await showConfirm({
+      title: 'Supprimer toutes les conversations',
+      message: `Êtes-vous sûr de vouloir supprimer ${ownedConversations.length} conversation(s) ? Cette action est irréversible.`,
+      confirmText: 'Tout supprimer',
+      cancelText: 'Annuler',
+      type: 'danger'
+    });
+    if (!confirmed) return;
+    
+    try {
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      let successCount = 0;
+      let failCount = 0;
+      
+      for (const conv of ownedConversations) {
+        try {
+          const res = await fetch(`/api/chats/${conv._id}`, { method: 'DELETE', headers, credentials: 'same-origin' });
+          const data = await res.json();
+          if (data?.success) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch (e) {
+          failCount++;
+        }
+      }
+      
+      // Update local state
+      setConversations(prev => prev.filter(c => {
+        const isOwned = c.user && currentUserId && String(c.user) === String(currentUserId);
+        return !isOwned; // Keep only non-owned conversations
+      }));
+      
+      if (failCount === 0) {
+        showToast(`${successCount} conversation(s) supprimée(s) avec succès`, 'success');
+      } else {
+        showToast(`${successCount} supprimée(s), ${failCount} échec(s)`, 'warning');
+      }
+    } catch (e) {
+      console.error('Failed to delete all conversations', e);
+      showToast('Erreur lors de la suppression', 'error');
     }
   };
 
@@ -35,8 +98,26 @@ export default function ConversationsList({ initialConversations }) {
     return <div className="p-4 text-gray-500 dark:text-gray-400">No conversations yet.</div>;
   }
 
+  const ownedCount = conversations.filter(c => c.user && currentUserId && String(c.user) === String(currentUserId)).length;
+
   return (
-    <ul>
+    <div>
+      {ownedCount > 0 && (
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {ownedCount} conversation(s) vous appartenant
+          </p>
+          <button
+            onClick={handleDeleteAll}
+            className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-sm"
+            title="Supprimer toutes mes conversations"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Tout supprimer</span>
+          </button>
+        </div>
+      )}
+      <ul>
       {conversations.map((c) => {
         const owned = c.user && currentUserId && String(c.user) === String(currentUserId);
         return (
@@ -65,5 +146,6 @@ export default function ConversationsList({ initialConversations }) {
         );
       })}
     </ul>
+    </div>
   );
 }
