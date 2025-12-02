@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { listConversations } from '../lib/controllers/conversationController';
 import ConversationsList from './ConversationsList.client';
+import CreateChatButton from './CreateChatButton.client';
 
 export default async function Page() {
   let conversations = [];
@@ -31,11 +32,7 @@ export default async function Page() {
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Conversations</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">Accédez à vos échanges récents avec le chatbot</p>
           </div>
-          <div>
-            <Link href="/chats" className="px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors">
-              New chat
-            </Link>
-          </div>
+          <CreateChatButton />
         </div>
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors">

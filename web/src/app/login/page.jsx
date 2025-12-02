@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, Lock, Bot, User, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import { useNotification } from "../components/NotificationProvider";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showToast } = useNotification();
   const router = useRouter();
   useEffect(() => {
     const token = Cookies.get("token");
@@ -105,12 +107,15 @@ const LoginPage = () => {
       if (response.ok && data.success) {
         Cookies.set('token', data.token, { expires: 1 });
         Cookies.set('user', JSON.stringify(data.user));
+        showToast('Connexion réussie !', 'success');
         router.push('/');
       } else {
         setError(data.error || 'Login failed. Please check your credentials.');
+        showToast(data.error || 'Échec de la connexion', 'error');
       }
     } catch (err) {
       setError('Network error. Please check your connection and try again.');
+      showToast('Erreur réseau', 'error');
     } finally {
       setIsLoading(false);
     }

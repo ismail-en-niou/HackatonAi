@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect } from "react";
+import styles from "./Navbar.module.css";
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Cookies from "js-cookie";
 import Link from "next/link";
+import { useNotification } from "../components/NotificationProvider";
 import {
   Home,
   MessageSquare,
@@ -25,9 +27,9 @@ import {
 
 const Navbar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState("home");
   const [isLoginedIn, setIsLoggedIn] = useState(false);
-  const [isActive, setIsActive] = useState(false);
+  const { showToast, showConfirm } = useNotification();
+  const pathname = usePathname();
   const menuItems = [
     { id: "home", icon: Home, label: "Accueil", path: "/" },
     { id: "chat", icon: MessageSquare, label: "Chatbot", path: "/chats" },
@@ -186,13 +188,12 @@ const Navbar = () => {
         <ul className="space-y-1 px-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.id;
+            const isActive = pathname === item.path || (item.id === 'chat' && pathname?.startsWith('/chats'));
 
             return (
               <li key={item.id}>
                 <Link
                   href={item.path}
-                  onClick={() => setActiveItem(item.id)}
                   className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
                     isActive
                       ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
@@ -230,15 +231,19 @@ const Navbar = () => {
         <div className="py-4 border-b border-gray-200 dark:border-white/10">
           <div className="px-3 space-y-1">
             <Link href="/library" className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
-                    isActive
+                    pathname === '/library'
                       ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-900/70 hover:text-gray-900 dark:hover:text-white'
                   }`}>
-              <Library className="w-5 h-5 text-gray-500 dark:text-slate-500" />
+              <Library className={`w-5 h-5 ${
+                pathname === '/library' 
+                  ? 'text-indigo-600 dark:text-indigo-400' 
+                  : 'text-gray-500 dark:text-slate-500'
+              }`} />
               <span className="ml-3 font-medium">Bibliothèque</span>
             </Link>
             <Link href="/projects" className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
-                      isActive
+                      pathname === '/projects'
                       ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-900/70 hover:text-gray-900 dark:hover:text-white'
                   }`}>
@@ -250,7 +255,7 @@ const Navbar = () => {
       )}
 
       {/* Chat History Section */}
-      <div className="flex-1">
+      <div className={`flex-1 overflow-x-auto overflow-y-auto ${styles['hide-scrollbar']}`}> 
         {!isCollapsed && (
           <div className="p-4">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-200 mb-3">Vos conversations</h3>
@@ -270,7 +275,7 @@ const Navbar = () => {
                               ? 'font-semibold text-gray-900 dark:text-white' 
                               : 'text-gray-700 dark:text-slate-200'
                           }`}>
-                            {chat.title || 'Untitled chat'}
+                            {chat.title ? (chat.title.length > 10 ? chat.title.slice(0, 10) + '…' : chat.title) : 'Untitled chat'}
                           </span>
                            {chat.isLocal ? (
                              <span className="ml-2 text-xs bg-emerald-500/20 text-emerald-200 px-2 py-0.5 rounded-full">Local</span>
@@ -299,61 +304,50 @@ const Navbar = () => {
                             : 'text-gray-500 dark:text-slate-500'
                         }`} />
                       </button>
-                       {/* delete button: show for local or owned conversations */}
-                       {(chat.isLocal || (chat.user && user?.id && chat.user === String(user.id))) && (
-                        <button
-                          title="Delete"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            if (!confirm('Are you sure you want to delete this conversation?')) return;
-                            try {
-                              if (chat.isLocal) {
-                                deleteLocalChat(chat._id);
-                                return;
-                              }
-                              const token = Cookies.get('token');
-                              const headers = {};
-                              if (token) headers['Authorization'] = `Bearer ${token}`;
-                              const res = await fetch(`/api/chats/${chat._id}`, { 
-                                method: 'DELETE', 
-                                headers, 
-                                credentials: 'same-origin' 
-                              });
-                              const data = await res.json();
-                              if (data?.success) {
-                                setChatHistory((prev) => prev.filter((c) => c._id !== chat._id));
-                              } else {
-                                console.error(data?.error || 'Delete failed');
-                              }
-                            } catch (err) {
-                              console.error('Failed to delete conversation', err);
+                      {/* delete button */}
+                      <button
+                        title="Delete"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const confirmed = await showConfirm({
+                            title: 'Supprimer la conversation',
+                            message: 'Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible.',
+                            confirmText: 'Supprimer',
+                            cancelText: 'Annuler',
+                            type: 'danger'
+                          });
+                          if (!confirmed) return;
+                          try {
+                            if (chat.isLocal) {
+                              deleteLocalChat(chat._id);
+                              showToast('Conversation supprimée avec succès', 'success');
+                              return;
                             }
-                          }}
-                          className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded text-red-600 dark:text-red-400"
-                        >
-                          <Trash className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Hover preview */}
-                    <div className="hidden group-hover:block absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-300 dark:border-white/10 rounded shadow-2xl z-50">
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500 dark:text-slate-400">
-                          {new Date(chat.updatedAt || chat.createdAt).toLocaleString()}
-                        </div>
-                        {chat.user && user?.id && chat.user === String(user.id) ? (
-                          <div className="text-xs px-2 py-0.5 bg-indigo-500/30 text-indigo-100 rounded">
-                            Vous
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className="mt-1 text-sm text-gray-900 dark:text-white truncate">
-                        {(chat.messages && chat.messages.length > 0) 
-                          ? (chat.messages[chat.messages.length - 1].content || chat.messages[chat.messages.length - 1].text) 
-                          : 'No messages'
-                        }
-                      </div>
+                            const token = Cookies.get('token');
+                            const headers = {};
+                            if (token) headers['Authorization'] = `Bearer ${token}`;
+                            const res = await fetch(`/api/chats/${chat._id}`, { 
+                              method: 'DELETE', 
+                              headers, 
+                              credentials: 'same-origin' 
+                            });
+                            const data = await res.json();
+                            if (data?.success) {
+                              setChatHistory((prev) => prev.filter((c) => c._id !== chat._id));
+                              showToast('Conversation supprimée avec succès', 'success');
+                            } else {
+                              console.error(data?.error || 'Delete failed');
+                              showToast(data?.error || 'Échec de la suppression', 'error');
+                            }
+                          } catch (err) {
+                            console.error('Failed to delete conversation', err);
+                            showToast('Erreur lors de la suppression', 'error');
+                          }
+                        }}
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded text-red-600 dark:text-red-400"
+                      >
+                        <Trash className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 </li>
