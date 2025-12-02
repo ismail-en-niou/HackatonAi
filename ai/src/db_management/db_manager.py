@@ -19,11 +19,13 @@ def init_db(y=False):
         print("Deleted existing ChromaDB.")
     docs = load_documents_from_directory("data")
     chunks = split_documents(docs)
+    # for chunk in chunks:
+    #     print(f"source_file: {chunk.metadata["source"]}\n{chunk.page_content}")
     insert_chunks_into_chroma(chunks)
     print(f"Inserted {len(chunks)} chunks into ChromaDB.")
 
 
-def get_relevant_chunks(query, n=6):
+def get_relevant_chunks(query, n=7):
     chroma_client = chromadb.PersistentClient(path="./chroma_db")
     embedding_func = NomicLocalEmbeddings()
     vectorstore = Chroma(

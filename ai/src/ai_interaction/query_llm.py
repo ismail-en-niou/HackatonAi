@@ -5,7 +5,7 @@ from db_management.db_manager import get_relevant_chunks
 client = Client()
 
 def query_llm(query):
-    chunks = get_relevant_chunks(query, n=10)
+    chunks = get_relevant_chunks(query, n=3)
     if (len(chunks) == 0):
         print("No relevant chunks found.")
         return

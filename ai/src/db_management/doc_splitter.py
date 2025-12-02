@@ -22,6 +22,13 @@ def extract_table_header(chunk_text: str) -> str:
         return "\n".join(lines[:2])
     return ""
 
+def is_table_start(chunk) -> bool:
+    """
+    Determines if the chunk text starts with a Markdown table.
+    """
+    lines = chunk.text.splitlines()
+    return len(lines) >= 2 and '|' in lines[0] and '-|-' in lines[1]
+
 def add_header_to_chunks(chunk_iter):
     """
     Takes an iterator of Docling chunks and ensures
@@ -34,10 +41,10 @@ def add_header_to_chunks(chunk_iter):
         text = chunk.text  # or str(chunk) depending on Docling version
 
         if is_table_chunk(chunk):
-            if table_header is None:
+            if is_table_start(chunk):
                 # First chunk of this table: extract header
                 table_header = extract_table_header(text)
-            else:
+            elif table_header is not None:
                 # Subsequent chunks: prepend header
                 text = f"{table_header}\n{text}"
         else:
@@ -57,6 +64,8 @@ class MDTableSerializerProvider(ChunkingSerializerProvider):
 
 chunker = HybridChunker(
     serializer_provider=MDTableSerializerProvider(),
+    max_tokens=3000,
+    overlap_tokens=50,
 )
 
 def split_documents(docs):
