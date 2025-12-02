@@ -48,6 +48,7 @@ services:
       - "8000:8000"
     volumes:
       - ./ai/data:/app/data
+      - ./ai/src:/app/src
       - chroma_db:/app/chroma_db
     networks:
       - default

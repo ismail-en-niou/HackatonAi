@@ -29,10 +29,10 @@ RUN chmod +x /app/init_ollama.sh
 	
 RUN /app/init_ollama.sh
 
-RUN uv run python main.py init_db -y
+RUN uv run python src/main.py init_db -y
 
 # Expose application port (uvicorn default) and Ollama port
 EXPOSE 8000 11434
 
 # Use the entrypoint script
-CMD ["sh", "-c", "ollama serve & uv run uvicorn server:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "ollama serve & uv run uvicorn --app-dir src server:app --host 0.0.0.0 --port 8000"]

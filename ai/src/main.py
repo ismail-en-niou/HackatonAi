@@ -1,5 +1,5 @@
-from src.db_management.db_manager import init_db
-from src.ai_interaction.query_llm import query_llm
+from db_management.db_manager import get_relevant_chunks, init_db
+from ai_interaction.query_llm import query_llm
 import sys
 
 
@@ -18,6 +18,11 @@ def main():
             print("Usage: python main.py query <your query here>")
             return
         query = " ".join(sys.argv[2:])
+        # chunks = get_relevant_chunks(query, n=7)
+        # for i, (doc, score) in enumerate(chunks):
+        #     print(f"=== Chunk {i+1} (score: {score}, src: {doc.metadata['source']}) ===")
+        #     print(doc.page_content)
+        #     print()
         answer = query_llm(query)
         print(answer)
 

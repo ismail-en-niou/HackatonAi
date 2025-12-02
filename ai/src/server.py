@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import FileResponse
 from pathlib import Path
-from src.ai_interaction.query_llm import query_llm
+from ai_interaction.query_llm import query_llm
 
 app = FastAPI()
 
