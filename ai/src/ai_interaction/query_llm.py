@@ -7,19 +7,21 @@ client = Client()
 def query_llm(query):
     chunks = get_relevant_chunks(query, n=3)
     if (len(chunks) == 0):
-        print("No relevant chunks found.")
-        return
+        return {
+            "answer": "Les documents de ma base de connaissances ne contiennent pas la réponse à votre question.",
+            "context_files": [],
+        }
     context = "\n\n-------\n\n".join([f"source file: {os.path.basename(doc.metadata['source'])}\n{doc.page_content}" for doc, _score in chunks])
     prompt = f"""
-You are a helpful assistant. Answer ONLY using the context provided below.
-If the answer is not in the context, say the following: "the documents in my knowledge base do not contain the answer."
+Tu es un assistant utile. Réponds UNIQUEMENT en utilisant le contexte fourni ci-dessous de maniere précise et concise.
+Si la réponse n'est pas dans le contexte, dis la phrase suivante : "Les documents de ma base de connaissances ne contiennent pas la réponse à votre question."
 
-Context:
+Contexte :
 {context}
 
-Question: {query}
+Question : {query}
 
-Answer:
+Réponse :
 """
     response = client.chat(model="qwen2.5:3b", messages=[{"role": "user", "content": prompt}])
     return {
