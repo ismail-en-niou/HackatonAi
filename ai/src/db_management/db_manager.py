@@ -20,7 +20,7 @@ def init_db(y=False):
     docs = load_documents_from_directory("data")
     chunks = split_documents(docs)
     # for chunk in chunks:
-    #     print(f"source_file: {chunk.metadata["source"]}\n{chunk.page_content}")
+    #     print(f"\n\nsource_file: {chunk.metadata['source']}\n{chunk.page_content}\n\n")
     insert_chunks_into_chroma(chunks)
     print(f"Inserted {len(chunks)} chunks into ChromaDB.")
 
@@ -33,22 +33,15 @@ def get_relevant_chunks(query, n=7):
         collection_name="phosphate_docs",
         embedding_function=embedding_func,
     )
-    # First retrieve a generous pool via vector search
     chromadb_retriever = vectorstore.as_retriever(search_kwargs={"k": 30})
-    # In newer LangChain versions, retrievers are Runnable; use invoke()
     initial_docs = chromadb_retriever.invoke(query)
 
-    # Then rerank locally using FlagEmbedding cross-encoder
-    # On CPU, disable fp16 to avoid numerical issues leading to zeros
     reranker = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=False)
 
-    # Batch scoring: FlagReranker expects parallel lists [queries], [docs]
     docs_texts = [d.page_content for d in initial_docs]
     pairs = [(query, doc_text) for doc_text in docs_texts]
     try:
-        # Prefer pair-based API to ensure correct batching
         scores = reranker.compute_score(pairs)
-        # scores may be a list/ndarray/tensor; normalize to Python floats
         try:
             scores = list(scores)
         except Exception as e:
@@ -56,7 +49,6 @@ def get_relevant_chunks(query, n=7):
             pass
     except Exception as e:
         print(f"Error computing scores: {e}")
-        # Fallback to (queries, docs) signature
         try:
             queries = [query] * len(docs_texts)
             scores = reranker.compute_score(queries, docs_texts)
@@ -72,7 +64,6 @@ def get_relevant_chunks(query, n=7):
     scored: List[Tuple[float, any]] = [(float(s), d) for s, d in zip(scores, initial_docs)]
 
     scored.sort(key=lambda x: x[0], reverse=True)
-    # Return list of (doc, score) to match caller expectations
     top = [(d, s) for s, d in scored[:n] if s > 0]
     return top
 

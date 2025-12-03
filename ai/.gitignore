@@ -7,4 +7,5 @@ chroma_db/
 .DS_Store
 .vscode/
 .venv/
+tmp/
 NOTES

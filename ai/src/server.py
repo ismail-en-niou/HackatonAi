@@ -1,7 +1,11 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, UploadFile, File
 from fastapi.responses import FileResponse
 from pathlib import Path
-from ai_interaction.query_llm import query_llm
+from db_management.db_manager import get_relevant_chunks, insert_chunks_into_chroma
+from db_management.doc_splitter import split_documents
+from db_management.doc_loader import load_one_document
+from ai_interaction.query_llm import name_chat, query_llm
+import os
 
 app = FastAPI()
 
@@ -23,8 +27,54 @@ def delete_file(filename: str):
 
 
 @app.post("/files")
-def upload_file():
-    pass  # Placeholder for file upload logic
+async def upload_file(file: UploadFile = File(...)):
+    # Ensure data directory exists
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Sanitize filename to prevent path traversal
+    filename = os.path.basename(file.filename)
+    if not filename:
+        raise HTTPException(status_code=400, detail="Filename is required")
+
+    destination = (DATA_DIR / filename).resolve()
+
+    # Double-check destination is under DATA_DIR
+    if not str(destination).startswith(str(DATA_DIR)):
+        raise HTTPException(status_code=400, detail="Invalid file path")
+
+    # Return an error if the file already exists
+    if destination.exists():
+        raise HTTPException(status_code=409, detail="File with this name already exists")
+
+    try:
+        # Stream write to avoid loading large files fully into memory
+        with destination.open("wb") as out_file:
+            while True:
+                chunk = await file.read(1024 * 1024)  # 1MB chunks
+                if not chunk:
+                    break
+                out_file.write(chunk)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
+    finally:
+        await file.close()
+
+    # Process the uploaded document: load, split into chunks, and insert into Chroma
+    try:
+        doc = load_one_document(str(destination))
+        if doc is None:
+            raise RuntimeError("Document loading returned None")
+
+        chunks = split_documents([doc])
+        if not chunks:
+            raise RuntimeError("No chunks produced from document")
+
+        insert_chunks_into_chroma(chunks)
+    except Exception as e:
+        # If processing fails, keep the uploaded file but report processing error
+        raise HTTPException(status_code=500, detail=f"File saved but processing failed: {e}")
+
+    return {"detail": "File uploaded and indexed successfully", "filename": filename}
 
 
 @app.get("/files")
@@ -35,17 +85,11 @@ def list_files():
 
 @app.get("/files/{filename}")
 def get_file(filename: str):
-    # Normalize path and avoid directory traversal
     requested_path = (DATA_DIR / filename).resolve()
-
-    # Check if the file is inside the data directory
     if not str(requested_path).startswith(str(DATA_DIR)):
         raise HTTPException(status_code=400, detail="Invalid file path")
-
-    # Check if file exists
     if not requested_path.exists() or not requested_path.is_file():
         raise HTTPException(status_code=404, detail="File not found")
-
     return FileResponse(path=requested_path)
 
 
@@ -53,3 +97,14 @@ def get_file(filename: str):
 def query_endpoint(query: str = Body(..., embed=True)):
     answer = query_llm(query)
     return answer
+
+
+@app.post("/search")
+def search_endpoint(query: str = Body(..., embed=True)):
+    chunks = get_relevant_chunks(query, n=3)
+    files = list({os.path.basename(doc.metadata['source']) for doc, _score in chunks})
+    return {"files": files}
+
+@app.post("/namechat")
+def name_chat_endpoint(query: str = Body(..., embed=True)):
+    return name_chat(query)

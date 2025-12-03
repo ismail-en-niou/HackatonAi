@@ -28,3 +28,15 @@ Réponse :
         "answer": response["message"]["content"],
         "context_files": list({os.path.basename(doc.metadata['source']) for doc, _score in chunks}),
     }
+
+def name_chat(query: str):
+    prompt = f"""
+Reponds en une seul phrase et de maniere professionnelle qui serait le titre approprié pour une conversation avec un agent ai ayant pour premier message : {query}
+le titre doit etre court, concis et pertinent par rapport au sujet de la conversation.
+ne met pas de guillemets autour du phrase.
+le titre:
+"""
+    response = client.chat(model="qwen2.5:3b", messages=[{"role": "user", "content": prompt}])
+    return {
+        "chat_name": response["message"]["content"].strip(),
+    }

@@ -8,7 +8,6 @@ from docling_core.transforms.serializer.markdown import MarkdownTableSerializer
 
 def is_table_chunk(chunk) -> bool:
     """Detect if the chunk contains a table (Markdown-style)."""
-    # Here we just check for a '|' symbol in the first line
     lines = chunk.text.splitlines()
     return len(lines) > 0 and '|' in lines[0]
 
@@ -42,13 +41,10 @@ def add_header_to_chunks(chunk_iter):
 
         if is_table_chunk(chunk):
             if is_table_start(chunk):
-                # First chunk of this table: extract header
                 table_header = extract_table_header(text)
             elif table_header is not None:
-                # Subsequent chunks: prepend header
                 text = f"{table_header}\n{text}"
         else:
-            # Reset table header when leaving a table
             table_header = None
         chunk.text = text
         processed_chunks.append(chunk)

@@ -15,3 +15,12 @@ def load_documents_from_directory(directory):
             continue
 
     return docs
+
+def load_one_document(file_path):
+    converter = DocumentConverter()
+    try:
+        doc = converter.convert(file_path).document
+        return doc
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+        return None
