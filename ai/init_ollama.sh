@@ -5,10 +5,15 @@ MODEL_NAME="qwen2.5:3b"
 MAX_WAIT=60
 OLLAMA_API="http://localhost:11434"
 
+# Enable GPU support
+export OLLAMA_GPU=1
+export OLLAMA_NUM_GPU=1
+
 log() { printf "[entrypoint] %s\n" "$*"; }
 
-# Start Ollama daemon in background
-log "Starting Ollama daemon..."
+# Start Ollama daemon in background with GPU support
+log "Starting Ollama daemon with GPU support..."
+log "GPU Info: $(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null || echo 'No GPU detected, using CPU')"
 ollama serve &
 OLLAMA_PID=$!
 

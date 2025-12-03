@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 import { useNotification } from '../components/NotificationProvider';
-import { FileText, Download, Trash2, RefreshCw, File, FileSpreadsheet, FileImage, FileVideo, FileAudio } from 'lucide-react';
+import { FileText, Download, Trash2, RefreshCw, File, FileSpreadsheet, FileImage, FileVideo, FileAudio, Shield } from 'lucide-react';
 import Navbar from '../containers/Navbar';
 
 export default function LibraryPage() {
@@ -14,7 +15,21 @@ export default function LibraryPage() {
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name-asc');
   const [uploading, setUploading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { showToast, showConfirm } = useNotification();
+
+  useEffect(() => {
+    // Check if user is admin
+    const rawUser = Cookies.get('user');
+    if (rawUser) {
+      try {
+        const user = JSON.parse(rawUser);
+        setIsAdmin(user.role === 'admin');
+      } catch (e) {
+        setIsAdmin(false);
+      }
+    }
+  }, []);
 
   const fetchFiles = async () => {
     setLoading(true);
@@ -84,6 +99,11 @@ export default function LibraryPage() {
   });
 
   const handleDelete = async (filename) => {
+    if (!isAdmin) {
+      showToast('Accès refusé. Privilèges administrateur requis.', 'error');
+      return;
+    }
+
     const confirmed = await showConfirm({
       title: 'Supprimer le fichier',
       message: `Êtes-vous sûr de vouloir supprimer "${filename}" ? Cette action est irréversible.`,
@@ -96,8 +116,13 @@ export default function LibraryPage() {
 
     setDeleting(filename);
     try {
+      const token = Cookies.get('token');
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
       const res = await fetch(`/api/library?filename=${encodeURIComponent(filename)}`, {
         method: 'DELETE',
+        headers,
         credentials: 'same-origin',
       });
       const data = await res.json();
@@ -152,16 +177,29 @@ export default function LibraryPage() {
   };
 
   const handleUpload = async (event) => {
+    if (!isAdmin) {
+      showToast('Accès refusé. Privilèges administrateur requis.', 'error');
+      return;
+    }
+
     try {
       const files = Array.from(event.target.files || []);
       if (files.length === 0) return;
       setUploading(true);
+      
+      const token = Cookies.get('token');
+      
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
         const res = await fetch('/api/library', {
           method: 'POST',
+          headers,
           body: formData,
+          credentials: 'same-origin',
         });
         const data = await res.json();
         if (!(res.ok && data.success)) {
@@ -182,6 +220,16 @@ export default function LibraryPage() {
     <main className="min-h-screen flex flex-row w-full relative overflow-x-hidden bg-gradient-to-br from-white via-indigo-50/40 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40 transition-colors">
         <Navbar/>
       <div className="max-w-7xl p-6 mx-auto">
+        {/* Admin Banner */}
+        {isAdmin && (
+          <div className="mb-4 p-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl flex items-center gap-2">
+            <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              Mode Administrateur - Vous pouvez gérer les fichiers
+            </span>
+          </div>
+        )}
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -222,10 +270,12 @@ export default function LibraryPage() {
               <option value="date-desc">Récents</option>
               <option value="date-asc">Anciens</option>
             </select>
-            <label className="inline-flex items-center px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors cursor-pointer">
-              <input type="file" multiple className="hidden" onChange={handleUpload} />
-              <span>{uploading ? 'Upload…' : 'Uploader'}</span>
-            </label>
+            {isAdmin && (
+              <label className="inline-flex items-center px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors cursor-pointer">
+                <input type="file" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
+                <span>{uploading ? 'Upload…' : 'Uploader'}</span>
+              </label>
+            )}
             <button
               onClick={fetchFiles}
               disabled={loading}
@@ -273,18 +323,20 @@ export default function LibraryPage() {
                     >
                       <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
-                      disabled={deleting === file.name}
-                      className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
-                      title="Supprimer"
-                    >
-                      {deleting === file.name ? (
-                        <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                      )}
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
+                        disabled={deleting === file.name}
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                        title="Supprimer (Admin uniquement)"
+                      >
+                        {deleting === file.name ? (
+                          <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate" title={file.name}>

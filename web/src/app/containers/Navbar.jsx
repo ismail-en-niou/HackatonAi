@@ -22,7 +22,8 @@ import {
   FolderOpen,
   User,
   Zap,
-  Trash
+  Trash,
+  Shield
 } from "lucide-react";
 
 const Navbar = () => {
@@ -360,12 +361,25 @@ const Navbar = () => {
       {isLoginedIn ? (
         <div className="p-4 border-t border-gray-200 dark:border-white/10">
           <div className="flex items-center space-x-3">
-            <Link href="/profile" className="w-10 h-10 bg-gray-200 dark:bg-slate-800 rounded-full flex items-center justify-center">
+            <Link href="/profile" className="w-10 h-10 bg-gray-200 dark:bg-slate-800 rounded-full flex items-center justify-center relative">
               <User className="w-5 h-5 text-gray-700 dark:text-slate-200" />
+              {user?.role === 'admin' && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+                  <Shield className="w-2.5 h-2.5 text-white" />
+                </div>
+              )}
             </Link>
             {isCollapsed ? null : (
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'John Doe'}</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'John Doe'}</p>
+                {user?.role === 'admin' && (
+                  <span className="px-2 py-0.5 text-xs bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-full font-semibold flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    Admin
+                  </span>
+                )}
+              </div>
               <a href="/profile" className="text-xs text-indigo-600 dark:text-indigo-300 hover:underline">
                 Voir le profil
               </a>

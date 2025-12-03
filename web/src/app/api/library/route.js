@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifyAdmin, verifyUser } from '../../lib/middleware/adminAuth';
 
 const AI_URL = process.env.AI_URL || 'http://localhost:8000';
 
@@ -58,6 +59,16 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  // Verify admin access
+  const { isAdmin, error, user } = await verifyAdmin(request);
+  
+  if (!isAdmin) {
+    return NextResponse.json(
+      { success: false, error: error || 'Access denied. Admin privileges required.' },
+      { status: 403 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file');
@@ -94,6 +105,16 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  // Verify admin access
+  const { isAdmin, error, user } = await verifyAdmin(request);
+  
+  if (!isAdmin) {
+    return NextResponse.json(
+      { success: false, error: error || 'Access denied. Admin privileges required.' },
+      { status: 403 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const filename = searchParams.get('filename');

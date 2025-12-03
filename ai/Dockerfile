@@ -2,9 +2,9 @@ FROM debian:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Python, curl and other required tools
+# Install Python, curl, GPU utilities and other required tools
 RUN apt-get update && apt-get upgrade -y && \
-	apt-get install -y python3 python3-pip curl ca-certificates bash && \
+	apt-get install -y python3 python3-pip curl ca-certificates bash pciutils && \
 	rm -rf /var/lib/apt/lists/*
 
 # Install uv (official recommended installer)
