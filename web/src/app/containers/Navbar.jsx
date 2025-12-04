@@ -328,7 +328,7 @@ const Navbar = () => {
                   return title.includes(query);
                 })
                 .map((chat) => (
-                <li key={chat._id || chat.id} className="border-b last:border-b-0">
+                <li key={chat._id || chat.id} className="border-b last:border-b-0 border-gray-200 dark:border-green-900/10 pb-2">
                   <div
                     className="group relative flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-slate-900/70 rounded-lg transition-colors"
                     onMouseEnter={() => setHoveredChat(chat)}
