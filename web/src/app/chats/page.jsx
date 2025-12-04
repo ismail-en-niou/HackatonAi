@@ -9,17 +9,20 @@ export default async function Page() {
   try {
     const raw = await listConversations(null, 50, 0);
     // Serialize Mongoose documents to plain objects safe for Client Components
-    conversations = (raw || []).map((c) => ({
-      _id: c._id?.toString?.() ?? (typeof c._id === 'string' ? c._id : ''),
-      title: c.title ?? 'Untitled chat',
-      user: c.user ? String(c.user) : null,
-      messages: Array.isArray(c.messages) ? c.messages.map(m => ({
-        role: m.role ?? 'user',
-        content: m.content ?? m.text ?? '',
-      })) : [],
-      createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : null,
-      updatedAt: c.updatedAt ? new Date(c.updatedAt).toISOString() : null,
-    }));
+    // Filter out deactivated conversations
+    conversations = (raw || [])
+      .filter((c) => c.isActive !== false)
+      .map((c) => ({
+        _id: c._id?.toString?.() ?? (typeof c._id === 'string' ? c._id : ''),
+        title: c.title ?? 'Untitled chat',
+        user: c.user ? String(c.user) : null,
+        messages: Array.isArray(c.messages) ? c.messages.map(m => ({
+          role: m.role ?? 'user',
+          content: m.content ?? m.text ?? '',
+        })) : [],
+        createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : null,
+        updatedAt: c.updatedAt ? new Date(c.updatedAt).toISOString() : null,
+      }));
   } catch (err) {
     console.error('Failed to load conversations', err);
   }

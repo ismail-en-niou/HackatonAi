@@ -13,11 +13,40 @@ function generateTitleFromMessages(messages) {
   return words.length ? `${words}${raw.length > words.length ? '...' : ''}` : `Chat ${new Date().toLocaleDateString()}`;
 }
 
+async function generateTitleWithAI(messages) {
+  try {
+    const firstUserMessage = messages.find((m) => (m.role === 'user' || !m.role));
+    const query = (firstUserMessage && firstUserMessage.content) || messages[0]?.content || '';
+    
+    if (!query) return generateTitleFromMessages(messages);
+
+    const AI_URL = process.env.AI_URL || 'http://localhost:8000';
+    const response = await fetch(`${AI_URL}/namechat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && (data.name || data.title)) {
+        return data.name || data.title;
+      }
+    }
+    
+    // Fallback to simple title generation
+    return generateTitleFromMessages(messages);
+  } catch (error) {
+    console.error('Failed to generate AI title, using fallback:', error);
+    return generateTitleFromMessages(messages);
+  }
+}
+
 export async function saveConversation({ messages = [], userId = null, title = null, tags } = {}) {
   await connectDB();
 
   try {
-    const generatedTitle = title || generateTitleFromMessages(messages);
+    const generatedTitle = title || await generateTitleWithAI(messages);
     const conversation = new Conversation({ user: userId, title: generatedTitle, messages, tags });
     await conversation.save();
     return { success: true, conversation };

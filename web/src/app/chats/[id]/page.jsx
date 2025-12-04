@@ -14,7 +14,8 @@ export default async function Page({ params }) {
 		console.error('Failed to get conversation', err);
 	}
 
-	if (!conversation) {
+	// Check if conversation doesn't exist or is deactivated
+	if (!conversation || conversation.isActive === false) {
 		// Fetch recent conversations to suggest alternatives
 		let recentConversations = [];
 		try {

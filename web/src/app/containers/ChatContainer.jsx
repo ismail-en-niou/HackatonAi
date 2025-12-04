@@ -55,6 +55,25 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
     scrollToBottom();
   }, [messages]);
 
+  const generateChatTitle = async (firstMessage) => {
+    try {
+      const res = await fetch('/api/chats/namechat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: firstMessage }),
+      });
+      const data = await res.json();
+      if (data?.success && data.name) {
+        return data.name;
+      }
+      // Fallback to simple title generation
+      return firstMessage.split(' ').slice(0, 6).join(' ') + (firstMessage.length > 50 ? '...' : '');
+    } catch (err) {
+      console.error('Failed to generate chat title', err);
+      return firstMessage.split(' ').slice(0, 6).join(' ') + (firstMessage.length > 50 ? '...' : '');
+    }
+  };
+
   const persistMessages = async (messagesToPersist) => {
     try {
       if (!messagesToPersist || !messagesToPersist.length) return null;
@@ -77,7 +96,11 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         // Create or update conversation in local storage
         let conv = localChats.find((c) => c._id === localId);
         if (!conv) {
-          conv = { _id: localId, title: messagesToPersist[0]?.text?.split(' ').slice(0,6).join(' ') || 'Local chat', messages: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), isLocal: true };
+          // Generate title for new chat
+          const firstUserMessage = messagesToPersist.find(m => m.sender === 'user');
+          const titleText = firstUserMessage?.text || messagesToPersist[0]?.text || 'Local chat';
+          const generatedTitle = await generateChatTitle(titleText);
+          conv = { _id: localId, title: generatedTitle, messages: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), isLocal: true };
           localChats.push(conv);
         }
         conv.messages = conv.messages.concat(payload.map(m => ({ role: m.role, content: m.content }))) ;
@@ -99,6 +122,11 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         const data = await res.json();
         return data?.conversation || null;
       } else {
+        // Generate title for new chat
+        const firstUserMessage = messagesToPersist.find(m => m.sender === 'user');
+        const titleText = firstUserMessage?.text || messagesToPersist[0]?.text;
+        const generatedTitle = titleText ? await generateChatTitle(titleText) : undefined;
+        
         const token = Cookies.get('token');
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -106,7 +134,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
           method: 'POST',
           headers,
           credentials: 'same-origin',
-          body: JSON.stringify({ messages: payload }),
+          body: JSON.stringify({ messages: payload, title: generatedTitle }),
         });
         const data = await res.json();
         if (data?.success && data.conversation?._id) {
@@ -253,7 +281,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         router.push('/chats');
         return;
       }
-      // Server-side deletion
+      // Server-side deletion (soft delete - sets isActive to false)
       const token = Cookies.get('token');
       const headers = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -297,7 +325,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
   return (
     <div className="flex flex-col h-[100vh] w-full bg-gradient-to-b from-green-50/30 via-white to-green-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 border-gray-200 dark:border-white/10 shadow-2xl shadow-gray-200/40 dark:shadow-green-900/40 backdrop-blur">
       {/* Chat Header */}
-      <div className="bg-white/80 dark:bg-slate-900/70 border-b border-gray-200 dark:border-white/10 px-6 py-4 rounded-t-2xl">
+      <div className="bg-white/80 dark:bg-slate-900/70 border-b border-gray-200 dark:border-white/10 px-6 py-4 ">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">

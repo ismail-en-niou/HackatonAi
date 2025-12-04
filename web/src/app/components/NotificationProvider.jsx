@@ -17,9 +17,10 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+  const [toastCounter, setToastCounter] = useState(0);
 
   const showToast = useCallback((message, type = 'info', duration = 3000) => {
-    const id = Date.now();
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setToasts((prev) => [...prev, { id, message, type, duration }]);
   }, []);
 

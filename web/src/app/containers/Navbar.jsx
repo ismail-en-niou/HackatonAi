@@ -86,7 +86,10 @@ const Navbar = () => {
         const data = await res.json();
         if (data?.success) {
           // ensure conversation.user is a string (if available) for easy comparison
-          const list = (data.conversations || []).map((c) => ({ ...c, user: c.user ? String(c.user) : null }));
+          // Filter out deactivated conversations
+          const list = (data.conversations || [])
+            .filter(c => c.isActive !== false)
+            .map((c) => ({ ...c, user: c.user ? String(c.user) : null }));
           const local = readLocalChats();
           // Merge local chats with server conversations while ensuring no duplicates (_id differs for local)
           const merged = [...list, ...local];
@@ -111,7 +114,7 @@ const Navbar = () => {
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">OCP KnowledgeHub</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">OCP</h1>
             <p className="text-xs text-gray-600 dark:text-slate-400">Savoir Opérationnel</p>
           </div>
         </div>

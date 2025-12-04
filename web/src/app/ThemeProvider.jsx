@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }) => {
     if (typeof window === "undefined") return;
     
     // Check localStorage for saved theme
-    const stored = window.localStorage.getItem("kh-theme");
+    const stored = localStorage.getItem("kh-theme");
     const initial = stored === "light" || stored === "dark" ? stored : "dark";
     
     setThemeState(initial);

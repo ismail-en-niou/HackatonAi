@@ -22,7 +22,8 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    return NextResponse.json({ success: true, results: data.results || data.documents || [] });
+    // FastAPI returns { files: [...] }
+    return NextResponse.json({ success: true, files: data.files || [], results: data.files || [] });
   } catch (error) {
     console.error('Search proxy error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Internal server error' }, { status: 500 });

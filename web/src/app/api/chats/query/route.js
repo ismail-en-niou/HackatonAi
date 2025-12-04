@@ -8,8 +8,8 @@ export async function POST(request) {
     const authHeader =
       request.headers.get('authorization') || request.headers.get('cookie') || '';
 
-    // Expecting body to contain { query: string, ... }
-    const payload = typeof body === 'object' ? body : { query: String(body) };
+    // Extract query string from body
+    const query = body?.query || body?.message || String(body);
 
     const baseUrl = process.env.AI_URL || 'http://localhost:8000';
     
@@ -21,7 +21,7 @@ export async function POST(request) {
           'Content-Type': 'application/json',
           ...(authHeader ? { Authorization: authHeader } : {}),
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ query }),
       });
     } catch (fetchError) {
       console.error('Failed to connect to AI service:', fetchError);

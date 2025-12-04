@@ -5,7 +5,7 @@ export async function GET(request, { params }) {
   try {
     const { id } = await params;
     const conversation = await getConversationById(id);
-    if (!conversation) {
+    if (!conversation || conversation.isActive === false) {
       return NextResponse.json({ success: false, error: 'Conversation not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true, conversation });
