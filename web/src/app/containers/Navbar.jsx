@@ -117,14 +117,46 @@ const Navbar = () => {
           const merged = [...list, ...local];
           setChatHistory(merged);
         } else {
-          setChatHistory([]);
+          // If no server conversations, just show local chats
+          const local = readLocalChats();
+          setChatHistory(local);
         }
       } catch (error) {
         console.error('Failed to fetch chat history', error);
+        // On error, still show local chats
+        const local = readLocalChats();
+        setChatHistory(local);
       }
     }
 
     fetchHistory();
+
+    // Listen for new chat creation events
+    const handleChatCreated = (event) => {
+      const { conversation } = event.detail;
+      if (conversation) {
+        // Add new conversation to the top of the list
+        setChatHistory(prev => [conversation, ...prev]);
+      }
+    };
+
+    const handleLocalChatCreated = () => {
+      // Refresh local chats
+      const local = readLocalChats();
+      setChatHistory(prev => {
+        // Filter out old local chats and merge with new ones
+        const nonLocal = prev.filter(c => !c.isLocal);
+        return [...local, ...nonLocal];
+      });
+    };
+
+    window.addEventListener('chat-created', handleChatCreated);
+    window.addEventListener('local-chat-created', handleLocalChatCreated);
+
+    return () => {
+      window.removeEventListener('chat-created', handleChatCreated);
+      window.removeEventListener('local-chat-created', handleLocalChatCreated);
+    };
   }, [isCollapsed]);
 
   return (
