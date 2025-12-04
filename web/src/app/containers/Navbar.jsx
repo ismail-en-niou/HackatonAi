@@ -23,7 +23,10 @@ import {
   User,
   Zap,
   Trash,
-  Shield
+  Shield,
+  LayoutDashboard,
+  Users,
+  Settings
 } from "lucide-react";
 
 const Navbar = () => {
@@ -31,10 +34,18 @@ const Navbar = () => {
   const [isLoginedIn, setIsLoggedIn] = useState(false);
   const { showToast, showConfirm } = useNotification();
   const pathname = usePathname();
-  const menuItems = [
+  
+  const baseMenuItems = [
     { id: "home", icon: Home, label: "Accueil", path: "/" },
     { id: "chat", icon: MessageSquare, label: "Chatbot", path: "/chats" },
   ];
+
+  const adminMenuItems = [
+    { id: "admin-dashboard", icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard", adminOnly: true },
+    { id: "admin-users", icon: Users, label: "Gérer Utilisateurs", path: "/admin/users", adminOnly: true },
+  ];
+
+  const [menuItems, setMenuItems] = useState(baseMenuItems);
 
   const [chatHistory, setChatHistory] = useState([]);
   const [user, setUser] = useState(null);
@@ -71,12 +82,22 @@ const Navbar = () => {
     const rawUser = Cookies.get('user');
     if (rawUser) {
       try {
-        setUser(JSON.parse(rawUser));
+        const userData = JSON.parse(rawUser);
+        setUser(userData);
+        
+        // Add admin menu items if user is admin
+        if (userData.role === 'admin') {
+          setMenuItems([...baseMenuItems, ...adminMenuItems]);
+        } else {
+          setMenuItems(baseMenuItems);
+        }
       } catch (e) {
         setUser(null);
+        setMenuItems(baseMenuItems);
       }
     } else {
       setUser(null);
+      setMenuItems(baseMenuItems);
     }
 
     // Fetch chat history (if user logged in, token will be sent via cookie header by the browser automatically)

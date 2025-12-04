@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '../ThemeProvider';
 import { useNotification } from '../components/NotificationProvider';
-import { User, Mail, Shield, Moon, Sun, Bell, BellOff, Lock, MessageSquare, Library, LogOut, RefreshCw, Settings } from 'lucide-react';
+import { User, Mail, Shield, Moon, Sun, Bell, BellOff, Lock, MessageSquare, Library, LogOut, RefreshCw, Settings, Users } from 'lucide-react';
 
 export default function ProfilePage() {
 	const [user, setUser] = useState(null);
@@ -211,18 +211,20 @@ export default function ProfilePage() {
 						</div>
 					</div>
 					<div className="flex gap-3">
+						{role === 'admin' && (
+							<Link 
+								href="/admin/users"
+								className="group relative px-5 py-3 rounded-xl border border-green-300 dark:border-green-700 bg-gradient-to-r from-green-600 to-emerald-600 text-sm font-semibold text-white shadow-lg shadow-green-500/30 hover:opacity-90 transition-all flex items-center gap-2"
+							>
+								<Users className="w-4 h-4" />
+								<span className="relative">Gérer Utilisateurs</span>
+							</Link>
+						)}
 						<button 
 							onClick={handleLogout}
 							className="group relative px-5 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-red-400 hover:text-red-600 dark:hover:border-red-500 dark:hover:text-red-400 transition-colors overflow-hidden"
 						>
 							<span className="relative">Se déconnecter</span>
-						</button>
-						<button 
-							onClick={handleSaveSettings} 
-							disabled={isSaving} 
-							className="px-5 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-700 text-white shadow hover:opacity-90 disabled:opacity-50 transition"
-						>
-							{isSaving ? 'Enregistrement…' : 'Enregistrer'}
 						</button>
 					</div>
 				</header>
@@ -434,6 +436,15 @@ export default function ProfilePage() {
 											className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-400" 
 											value={role} 
 										/>
+									</div>
+									<div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+										<button 
+											onClick={handleSaveSettings} 
+											disabled={isSaving} 
+											className="w-full px-5 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-700 text-white shadow hover:opacity-90 disabled:opacity-50 transition"
+										>
+											{isSaving ? 'Enregistrement…' : 'Enregistrer les modifications'}
+										</button>
 									</div>
 								</div>
 							</section>

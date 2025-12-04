@@ -81,6 +81,8 @@ export default function LibraryPage() {
     }
 
     setSemanticSearching(true);
+    // Don't clear results immediately - keep showing files during search
+    
     try {
       const res = await fetch('/api/search', {
         method: 'POST',
@@ -109,7 +111,11 @@ export default function LibraryPage() {
 
   const handleSearchModeChange = (mode) => {
     setSearchMode(mode);
-    setSemanticResults(null);
+    if (mode === 'semantic') {
+      setSemanticResults([]); // Clear files and show empty state with animation
+    } else {
+      setSemanticResults(null); // Back to simple mode, show all files
+    }
     if (mode === 'simple') {
       setQuery('');
     }
@@ -263,7 +269,7 @@ export default function LibraryPage() {
   return (
     <main className="min-h-screen flex flex-row w-full relative overflow-x-hidden bg-gradient-to-br from-white via-indigo-50/40 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40 transition-colors">
         <Navbar/>
-      <div className="max-w-7xl p-6 mx-auto">
+      <div className="w-full p-6 mx-auto">
         {/* Admin Banner */}
         {isAdmin && (
           <div className="mb-4 p-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl flex items-center gap-2">
@@ -359,23 +365,27 @@ export default function LibraryPage() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && searchMode === 'semantic') {
+                    e.target.blur(); // Remove focus for smooth animation
                     handleSemanticSearch();
                   }
                 }}
                 placeholder={searchMode === 'semantic' ? 'Recherche sémantique...' : 'Rechercher par nom…'}
-                className="px-3 py-2 pr-10 rounded-lg w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-900 text-sm min-w-[200px]"
+                className="px-3 py-2 pr-10 rounded-lg w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-900 text-sm min-w-[200px] transition-all duration-200 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent"
               />
               {searchMode === 'semantic' && (
                 <button
-                  onClick={handleSemanticSearch}
+                  onClick={() => {
+                    document.querySelector('input[type="text"]')?.blur();
+                    handleSemanticSearch();
+                  }}
                   disabled={semanticSearching || !query.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors disabled:opacity-50"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                   title="Rechercher"
                 >
                   {semanticSearching ? (
-                    <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-spin" />
                   ) : (
-                    <Search className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <Search className="w-4 h-4 text-indigo-600 dark:text-indigo-400 hover:scale-110 transition-transform" />
                   )}
                 </button>
               )}
@@ -383,9 +393,9 @@ export default function LibraryPage() {
           </div>
 
         {/* Semantic Search Results Info */}
-        {searchMode === 'semantic' && semanticResults !== null && (
+        {searchMode === 'semantic' && semanticResults !== null && semanticResults.length > 0 && !semanticSearching && (
           <div className="mb-6 space-y-4">
-            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between animate-fade-in">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <span className="text-sm text-indigo-900 dark:text-indigo-100">
@@ -394,7 +404,7 @@ export default function LibraryPage() {
               </div>
               <button
                 onClick={() => {
-                  setSemanticResults(null);
+                  setSemanticResults([]);
                   setQuery('');
                 }}
                 className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -402,140 +412,185 @@ export default function LibraryPage() {
                 Effacer
               </button>
             </div>
-
-            {/* Display Semantic Search Results as Cards */}
-            {semanticResults.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {semanticResults.map((filename) => {
-                  const file = files.find(f => f.name === filename);
-                  if (!file) return null;
-                  
-                  return (
-                    <div 
-                      key={file.name}
-                      className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 rounded-xl shadow-lg border-2 border-indigo-300 dark:border-indigo-700 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer"
-                      onClick={() => window.open(`${Linkfiles}${encodeURIComponent(file.name)}`, '_blank')}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
-                          {getFileIcon(file.name)}
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownload(file.name); }}
-                            className="p-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors"
-                            title="Télécharger"
-                          >
-                            <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                          </button>
-                          {isAdmin && (
-                            <button
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
-                              disabled={deleting === file.name}
-                              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
-                              title="Supprimer (Admin uniquement)"
-                            >
-                              {deleting === file.name ? (
-                                <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
-                        <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 truncate" title={file.name}>
-                          {file.name}
-                        </h3>
-                      </div>
-                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                        Résultat pertinent
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {semanticResults.length === 0 && (
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-white/10 p-8 text-center">
-                <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Aucun fichier pertinent trouvé pour "<strong>{query}</strong>"
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                  Essayez une recherche différente ou utilisez la recherche simple
-                </p>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Show regular file list only if not in semantic search mode with results */}
-        {!(searchMode === 'semantic' && semanticResults !== null) && (
-          <>
-            {/* Loading State */}
-        {loading && files.length === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Chargement des fichiers...</p>
+        {/* Loading Overlay for Semantic Search */}
+        {searchMode === 'semantic' && semanticSearching && (
+          <div className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 flex items-center justify-center animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 p-8 max-w-md mx-4">
+              <div className="text-center">
+                <div className="relative w-24 h-24 mx-auto mb-6">
+                  {/* Outer pulsing ring */}
+                  <div className="absolute inset-0 border-4 border-indigo-300 dark:border-indigo-700 rounded-full animate-ping opacity-40"></div>
+                  
+                  {/* Middle rotating ring */}
+                  <div className="absolute inset-2 border-4 border-indigo-400 dark:border-indigo-600 rounded-full animate-pulse-ring"></div>
+                  
+                  {/* Inner spinning border */}
+                  <div className="absolute inset-4 border-4 border-indigo-600 dark:border-indigo-400 border-t-transparent border-r-transparent rounded-full animate-spin"></div>
+                  
+                  {/* Center icon */}
+                  <Sparkles className="absolute inset-0 m-auto w-10 h-10 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Title with shimmer effect */}
+                  <div className="relative inline-block">
+                    <p className="text-gray-900 dark:text-white font-bold text-xl">
+                      Recherche sémantique en cours
+                    </p>
+                    <div className="absolute inset-0 animate-shimmer opacity-50"></div>
+                  </div>
+                  
+                  {/* Subtitle */}
+                  <p className="text-gray-600 dark:text-gray-400 text-sm animate-pulse">
+                    Analyse intelligente des fichiers pour "<strong className="text-indigo-600 dark:text-indigo-400">{query}</strong>"
+                  </p>
+                  
+                  {/* Animated progress dots */}
+                  <div className="flex items-center justify-center gap-2 pt-4">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2.5 h-2.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2.5 h-2.5 bg-indigo-500 dark:bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2.5 h-2.5 bg-indigo-400 dark:bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                  
+                  {/* Loading bar */}
+                  <div className="mt-6 w-64 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mx-auto">
+                    <div className="h-full bg-gradient-to-r from-indigo-400 via-indigo-600 to-indigo-400 dark:from-indigo-500 dark:via-indigo-400 dark:to-indigo-500 animate-shimmer rounded-full"></div>
+                  </div>
+                  
+                  {/* Status text */}
+                  <p className="text-xs text-gray-500 dark:text-gray-500 pt-2 animate-pulse">
+                    🤖 Intelligence artificielle en action...
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        ) : files.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-white/10 p-12 text-center">
-            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Aucun fichier disponible
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              La bibliothèque est actuellement vide
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {sortedFiles.map((file) => (
-              <div 
-                key={file.name}
-                className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-white/10 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer"
-                onClick={() => window.open(`${Linkfiles}${encodeURIComponent(file.name)}`, '_blank')}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  {getFileIcon(file.name)}
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownload(file.name); }}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title="Télécharger"
-                    >
-                      <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    {isAdmin && (
-                      <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
-                        disabled={deleting === file.name}
-                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
-                        title="Supprimer (Admin uniquement)"
-                      >
-                        {deleting === file.name ? (
-                          <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+        )}
+
+        {/* Display Semantic Search Results as Cards */}
+        {searchMode === 'semantic' && semanticResults !== null && semanticResults.length > 0 && !semanticSearching && (
+          <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+              {semanticResults.map((filename, index) => {
+                return (
+                  <div 
+                    key={filename}
+                    className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 rounded-xl shadow-lg border-2 border-indigo-300 dark:border-indigo-700 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer animate-slide-up"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    onClick={() => window.open(`${Linkfiles}${encodeURIComponent(filename)}`, '_blank')}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                        {getFileIcon(filename)}
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownload(filename); }}
+                          className="p-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors"
+                          title="Télécharger"
+                        >
+                          <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(filename); }}
+                            disabled={deleting === filename}
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                            title="Supprimer (Admin uniquement)"
+                          >
+                            {deleting === filename ? (
+                              <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                            )}
+                          </button>
                         )}
-                      </button>
-                    )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                      <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 truncate" title={filename}>
+                        {filename}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                      Résultat pertinent
+                    </p>
                   </div>
-                </div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate" title={file.name}>
-                  {file.name}
-                </h3>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         )}
-      </>
+
+        {/* Regular file list */}
+        {(!(searchMode === 'semantic' && semanticResults !== null && semanticResults.length === 0) || semanticSearching) && (
+          <>
+            {/* Loading State */}
+            {loading && files.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400">Chargement des fichiers...</p>
+                </div>
+              </div>
+            ) : files.length === 0 ? (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-white/10 p-12 text-center">
+                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Aucun fichier disponible
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  La bibliothèque est actuellement vide
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedFiles.map((file) => (
+                  <div 
+                    key={file.name}
+                    className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-white/10 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+                    onClick={() => window.open(`${Linkfiles}${encodeURIComponent(file.name)}`, '_blank')}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      {getFileIcon(file.name)}
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownload(file.name); }}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          title="Télécharger"
+                        >
+                          <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
+                            disabled={deleting === file.name}
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                            title="Supprimer (Admin uniquement)"
+                          >
+                            {deleting === file.name ? (
+                              <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate" title={file.name}>
+                      {file.name}
+                    </h3>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
