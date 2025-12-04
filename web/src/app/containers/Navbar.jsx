@@ -32,6 +32,7 @@ import {
 const Navbar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoginedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { showToast, showConfirm } = useNotification();
   const pathname = usePathname();
   
@@ -202,6 +203,8 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Rechercher des discussions"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
@@ -285,7 +288,14 @@ const Navbar = () => {
           <div className="p-4">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-200 mb-3">Vos conversations</h3>
             <ul className="space-y-1">
-              {chatHistory.map((chat) => (
+              {chatHistory
+                .filter((chat) => {
+                  if (!searchQuery.trim()) return true;
+                  const query = searchQuery.toLowerCase();
+                  const title = (chat.title || 'Discussion sans titre').toLowerCase();
+                  return title.includes(query);
+                })
+                .map((chat) => (
                 <li key={chat._id || chat.id} className="border-b last:border-b-0">
                   <div
                     className="group relative flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-slate-900/70 rounded-lg transition-colors"
@@ -323,11 +333,7 @@ const Navbar = () => {
                         onMouseLeave={() => setHoveredChat(null)}
                         className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded"
                       >
-                        <Zap className={`w-3 h-3 ${
-                          chat.user && user?.id && chat.user === String(user.id) 
-                            ? 'text-green-600 dark:text-green-400' 
-                            : 'text-gray-500 dark:text-slate-500'
-                        }`} />
+
                       </button>
                       {/* delete button */}
                       <button

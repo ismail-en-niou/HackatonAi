@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNavbar from '@/app/components/AdminNavbar';
+import AdminSidebar from '@/app/components/AdminSidebar';
 import UserTable from '@/app/components/UserTable';
 import UserForm from '@/app/components/UserForm';
 import EmailForm from '@/app/components/EmailForm';
@@ -232,10 +232,10 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <AdminNavbar />
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <AdminSidebar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

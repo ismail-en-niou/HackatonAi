@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNavbar from '@/app/components/AdminNavbar';
+import AdminSidebar from '@/app/components/AdminSidebar';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { ArrowLeft, Save, Key, Trash2, Ban, CheckCircle } from 'lucide-react';
 
@@ -230,9 +230,9 @@ const EditUser = ({ params }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-        <AdminNavbar />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+        <AdminSidebar />
+        <div className="flex-1 flex items-center justify-center">
           <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
@@ -240,10 +240,10 @@ const EditUser = ({ params }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <AdminNavbar />
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <AdminSidebar />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
         {/* Header */}
         <div className="mb-8">
           <button

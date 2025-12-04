@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNavbar from '@/app/components/AdminNavbar';
+import AdminSidebar from '@/app/components/AdminSidebar';
 import { Settings as SettingsIcon, Bell, Shield, Palette, Globe } from 'lucide-react';
 
 const AdminSettings = () => {
@@ -56,10 +56,10 @@ const AdminSettings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <AdminNavbar />
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <AdminSidebar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

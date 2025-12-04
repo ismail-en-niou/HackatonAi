@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNavbar from '@/app/components/AdminNavbar';
+import AdminSidebar from '@/app/components/AdminSidebar';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { 
   Mail, 
@@ -200,9 +200,9 @@ const EmailManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-        <AdminNavbar />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+        <AdminSidebar />
+        <div className="flex-1 flex items-center justify-center">
           <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
@@ -210,10 +210,10 @@ const EmailManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <AdminNavbar />
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <AdminSidebar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

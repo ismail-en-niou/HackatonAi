@@ -548,21 +548,6 @@ export default function ProfilePage() {
 									</div>
 								)}
 							</section>
-
-							{/* Advanced / Danger Zone */}
-							<section className="md:col-span-2 group rounded-2xl border border-red-200/40 dark:border-red-900/40 bg-red-50/40 dark:bg-red-900/10 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition">
-								<h2 className="text-sm font-semibold uppercase tracking-wide text-red-600 dark:text-red-400 mb-4 flex items-center gap-2">
-									<RefreshCw className="w-4 h-4" />
-									Zone sensible
-								</h2>
-								<p className="text-xs text-red-700 dark:text-red-300 mb-3 max-w-prose">La suppression du jeton local peut résoudre des problèmes de session. Cette action ne supprime pas votre compte.</p>
-								<button
-									onClick={() => { Cookies.remove('token'); Cookies.remove('user'); alert('Session locale réinitialisée. Veuillez vous reconnecter.'); }}
-									className="px-4 py-2 rounded-lg text-xs font-semibold bg-red-600 hover:bg-red-700 text-white shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-								>
-									Réinitialiser la session
-								</button>
-							</section>
 						</div>
 					</>
 				)}
