@@ -5,16 +5,19 @@ from db_management.db_manager import get_relevant_chunks, insert_chunks_into_chr
 from db_management.doc_splitter import split_documents
 from db_management.doc_loader import load_one_document
 from ai_interaction.query_llm import name_chat, query_llm
+from db_management.convert_to_md import save_docs_as_md
 import os
 
 app = FastAPI()
 
-DATA_DIR = Path("data").resolve()
+DATA_DIR = Path("data_raw").resolve()
+DATA_MD = Path("data").resolve()
 
 
 @app.delete("/files/{filename}")
 def delete_file(filename: str):
     requested_path = (DATA_DIR / filename).resolve()
+    data_path = (DATA_MD / (filename.split(".")[0] + ".md")).resolve()
 
     if not str(requested_path).startswith(str(DATA_DIR)):
         raise HTTPException(status_code=400, detail="Invalid file path")
@@ -23,6 +26,7 @@ def delete_file(filename: str):
         raise HTTPException(status_code=404, detail="File not found")
 
     requested_path.unlink()
+    data_path.unlink(missing_ok=True)
     return {"detail": "File deleted successfully"}
 
 
@@ -42,8 +46,10 @@ async def upload_file(file: UploadFile = File(...)):
     if not str(destination).startswith(str(DATA_DIR)):
         raise HTTPException(status_code=400, detail="Invalid file path")
 
-    # Return an error if the file already exists
-    if destination.exists():
+    # Check if file with same name (without extension) already exists
+    base_name = destination.stem  # Get filename without extension
+    existing_files = list(DATA_DIR.glob(f"{base_name}.*"))
+    if existing_files:
         raise HTTPException(status_code=409, detail="File with this name already exists")
 
     try:
@@ -62,6 +68,8 @@ async def upload_file(file: UploadFile = File(...)):
     # Process the uploaded document: load, split into chunks, and insert into Chroma
     try:
         doc = load_one_document(str(destination))
+        save_docs_as_md([doc], "data")
+        doc = load_one_document("data/" + file.filename.split(".")[0] + ".md")
         if doc is None:
             raise RuntimeError("Document loading returned None")
 
@@ -102,7 +110,8 @@ def query_endpoint(query: str = Body(..., embed=True)):
 @app.post("/search")
 def search_endpoint(query: str = Body(..., embed=True)):
     chunks = get_relevant_chunks(query, n=3)
-    files = list({os.path.basename(doc.metadata['source']) for doc, _score in chunks})
+    files_md = list({os.path.basename(doc.metadata['source']) for doc, _score in chunks})
+    files = [list(DATA_DIR.glob(f"{f.split(".")[0]}.*"))[0].name for f in files_md]
     return {"files": files}
 
 @app.post("/namechat")
