@@ -1,3 +1,4 @@
+from db_management.convert_to_md import save_docs_as_md
 from db_management.db_manager import get_relevant_chunks, init_db
 from ai_interaction.query_llm import query_llm
 import sys
@@ -25,7 +26,11 @@ def main():
         #     print()
         answer = query_llm(query)
         print(answer)
-
+    elif command == "load_data":
+        from db_management.doc_loader import load_documents_from_directory
+        docs = load_documents_from_directory("data_raw")
+        save_docs_as_md(docs, "data")
+        print(f"Loaded {len(docs)} documents from data_raw.")
 
 if __name__ == "__main__":
     main()
