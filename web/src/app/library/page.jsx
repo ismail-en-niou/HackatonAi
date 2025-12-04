@@ -373,7 +373,7 @@ export default function LibraryPage() {
                   title="Rechercher"
                 >
                   {semanticSearching ? (
-                    <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-spin" />
+                    <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <Search className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   )}
