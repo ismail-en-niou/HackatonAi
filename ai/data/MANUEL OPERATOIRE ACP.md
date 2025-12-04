@@ -1627,7 +1627,7 @@ Les tests ont indiqué que la teneur pratique maximale en solides pour transport
 
 L'équipement de protection individuel (EPI) requis pour la zone d'épaississement est le suivant :
 
-<!-- image -->
+Protection des yeux obligatoire, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 La Section 4.2 aborde le fonctionnement normal des systèmes d'épaississement (réception de la pulpe de Phosphate, floculation, épaississeur, débordement de l'épaississeur, alimentation des réservoirs de pulpe de Phosphate/du réacteur et puisard de récupération). Les Sections 4.3, 4.4, 4.5 et 4.6 abordent le démarrage normal, l'arrêt normal, l'arrêt d'urgence et le dépannage, respectivement.  Vous pourrez trouver des informations supplémentaires pertinentes sur le fonctionnement du système d'épaississeur de la manière suivante :
 
@@ -1826,7 +1826,7 @@ Les variables clés du processus qui doivent être contrôlées sont les suivant
 
 L'équipement de protection individuel (EPI) requis pour la zone de réaction et de filtration est le suivant :
 
-<!-- image -->
+Protection des yeux obligatoire, protection auditive obligatoire dans cette zone, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 ### 5.2 Fonctionnement normal
 
@@ -1836,7 +1836,15 @@ Le débit de production de l'usine est configuré par la quantité d'alimentatio
 
 Le débit de pulpe de Phosphate est contrôlé par le débit massique (base sèche – calculé à partir de la densité et du débit volumétrique) calculé sur les boucles de contrôle du débit FIC-484, FIC-490 et FIC-496 sur chacune des trois conduites d'alimentation de pulpe de Phosphate. Chaque contrôleur reçoit un signal provenant du système à densité redondante composé d'un indicateur de densité acoustique et d'un indicateur de densité nucléaire et de l'indicateur de débit pour calculer un débit massique.  FIC-484 utilise les signaux provenant de DI-485 (nucléaire) ou de DI-486 (acoustique) ; FIC-490 à partir de DI-491 (nucléaire) ou DI-492 (acoustique) ; FIC-496 à partir de DI-497 (nucléaire) ou DI-498 (acoustique). La vitesse des pompes d'alimentation du réacteur est régulée pour maintenir le débit massique souhaité.
 
-<!-- image -->
+plan architectural d'un réacteur annulaire Jacobs et d'un réservoir de maturation:
+Partie gauche : Le plan rectangulaire représente les parois supérieures du réservoir (tank upper walls). On observe une structure compartimentée avec plusieurs sections intérieures délimitées par des cloisons. Les lignes de cotation rouges sur le côté gauche indiquent les dimensions précises de cette structure. L'agencement montre une disposition linéaire des espaces avec des ouvertures de communication entre les différentes zones.
+Partie droite : Le plan circulaire illustre le réacteur annulaire Jacobs, une conception sophistiquée comprenant :
+
+Un noyau central circulaire servant d'élément principal du réacteur
+Des espaces de traitement disposés en configuration annulaire (en forme d'anneau) autour du centre
+Plusieurs chambres ou sections réparties radialement
+Une enveloppe extérieure courbe suivant la géométrie circulaire du système
+Des zones qui apparaissent être des stations de traitement ou des points d'accès
 
 #### 5.2.2 Débit d'acide sulfurique
 
@@ -2251,7 +2259,7 @@ Le courant inférieur provenant des clarificateurs, la pulpe à 28 %, est renvo
 
 L'équipement de protection individuel (EPI) requis pour la zone de clarification et de stockage à 28 % est le suivant :
 
-<!-- image -->
+Protection des yeux obligatoire, protection auditive obligatoire dans cette zone, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 ### 6.2 Fonctionnement normal
 
@@ -2747,7 +2755,7 @@ L'objectif du processus du système d'élimination de pulpe dans le clarificateu
 
 L'équipement de protection individuel (EPI) requis pour la zone de clarification et de stockage à 54 % est le suivant :
 
-<!-- image -->
+Protection des yeux obligatoire, protection auditive obligatoire dans cette zone, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 ### 9.2 Fonctionnement normal
 
@@ -2858,7 +2866,7 @@ L'objectif du processus de la tour de refroidissement et du système de condensa
 
 L'équipement de protection individuel (EPI) requis pour la tour de refroidissement et le système de condensat de traitement à 28 % est le suivant :
 
-<!-- image -->
+Protection des yeux obligatoire, protection auditive obligatoire dans cette zone, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 ### 10.2 Fonctionnement normal
 
@@ -3210,7 +3218,7 @@ Pour choisir l'EPI le plus adapté, envisagez soigneusement ce qui suit :
 6. La santé des personnes qui le portent a-t-elle été prise en compte ?
 #### 12.2.2 Protection oculaire
 
-<!-- image -->
+Protection des yeux obligatoire.
 
 Dangers : projections de produits chimiques ou de métaux, poussières, projectiles, gaz et rayonnement
 
@@ -3218,7 +3226,7 @@ Options : lunettes de protection (écrans latéraux), écrans faciaux, visière
 
 #### 12.2.3 Protection de la tête
 
-<!-- image -->
+Casques de sécurité obligatoires.
 
 Dangers : impact provenant de la chute d'objets ou d'objets volants, risque de se cogner la tête, emmêlement des cheveux
 
@@ -3226,7 +3234,7 @@ Options : une large gamme de casques et de casquettes antichocs
 
 #### 12.2.4 Protection auditive
 
-<!-- image -->
+Protection auditive obligatoire dans cette zone.
 
 Dangers : bruit de l'équipement ou du processus (&gt;85 décibels)
 
@@ -3246,7 +3254,7 @@ Options : gants, gantelets, moufles, bracelets, brassards
 
 #### 12.2.7 Protection des pieds et des jambes
 
-<!-- image -->
+chaussures de sécurité obligatoires dans cette zone.
 
 Dangers : surface mouillée, accumulation électrostatique, dérapage, coupures et piqûres, chutes d'objets, produits chimiques
 

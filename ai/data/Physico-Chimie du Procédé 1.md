@@ -672,9 +672,13 @@ FIGURE 15-Courbe de distribution granulometrique de gypse obtenuindustriellement
 
 ## PRAYON TECHNOLOGIES S.A.
 
-<!-- image -->
-
-<!-- image -->
+(a) Cristaux de gypse (125x) obtenus à partir de phosphate de Kola
+(b) Cristaux de gypse (125x) obtenus à partir de phosphate de Gafsa
+(c) Cristaux d'hémihydrate (125x) obtenus à partir de phosphate de Kola
+(d) Cristaux d'hémihydrate (125x) obtenus à partir de phosphate de Gafsa
+(e) Cristaux d'anhydrite (125x) obtenus à partir de phosphate de Kola
+FIGURE 16
+Cristaux de gypse, d'hémihydrate et d'anhydrite obtenus à partir de phosphates différents
 
 Affaire n° : 2806
 
@@ -690,11 +694,7 @@ DIGESTION
 
 ATTAQUE
 
-<!-- image -->
-
 Figure 1: schØma simplifiØ de l'attaque-filtration
-
-<!-- image -->
 
 Affaire n° : 2806
 
