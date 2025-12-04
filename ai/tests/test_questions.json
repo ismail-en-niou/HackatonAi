@@ -1,0 +1,82 @@
+[
+  {
+    "question": "Quelle est la réaction principale de l’attaque du phosphate naturel par l’acide sulfurique ?",
+    "expected": "Ca3(PO4)2 + 3 H2SO4 + 6 H2O → 3 CaSO4·2H2O + 2 H3PO4 + chaleur"
+  },
+  {
+    "question": "Que se passe-t-il lorsque le phosphate contient du CaCO3 ?",
+    "expected": "CaCO3 + H2SO4 + H2O → CaSO4·2H2O + CO2"
+  },
+  {
+    "question": "Quelle réaction chimique forme l’acide fluorhydrique (HF) à partir du CaF2 ?",
+    "expected": "CaF2 + H2SO4 + 2 H2O → CaSO4·2H2O + 2 HF"
+  },
+  {
+    "question": "Quelle réaction se produit entre la silice (SiO2) et l’acide fluorhydrique ?",
+    "expected": "6 HF + SiO2 → H2SiF6 + 2 H2O"
+  },
+  {
+    "question": "Que devient le fluor lié au calcium dans le phosphate lors de l’attaque acide ?",
+    "expected": "CaF2 + H2SO4 + 2 H2O → CaSO4·2H2O + 2 HF"
+  },
+  {
+    "question": "Quelle est la forme cristalline du gypse obtenue lorsque le rapport H3PO4/H2SO4 est élevé ?",
+    "expected": "CaSO4·2H2O (dihydrate)"
+  },
+  {
+    "question": "Quelle est la forme cristalline alternative du gypse possible dans certaines conditions du réacteur ?",
+    "expected": "CaSO4·1/2H2O (hémihydrate)"
+  },
+  {
+    "question": "Quelle réaction secondaire produit du CO2 dans le procédé ?",
+    "expected": "CaCO3 + H2SO4 + H2O → CaSO4·2H2O + CO2"
+  },
+  {
+    "question": "Pourquoi des mousses peuvent-elles se former pendant l’attaque du phosphate ?",
+    "expected": "Les matières organiques réagissent pendant la libération du CO2 et provoquent des mousses."
+  },
+  {
+    "question": "Quelle réaction forme Na2SiF6 dans le procédé ?",
+    "expected": "H2SiF6 + Na2O → Na2SiF6 + H2O"
+  },
+  {
+    "question": "Quelle réaction forme K2SiF6 dans le procédé ?",
+    "expected": "H2SiF6 + K2O → K2SiF6 + H2O"
+  },
+  {
+    "question": "Quelle réaction se produit entre Fe2O3 et l’acide phosphorique ?",
+    "expected": "Fe2O3 + 2 H3PO4 → 2 FePO4 + 3 H2O"
+  },
+  {
+    "question": "Quelle réaction se produit entre Al2O3 et l’acide phosphorique ?",
+    "expected": "Al2O3 + 2 H3PO4 → 2 AlPO4 + 3 H2O"
+  },
+  {
+    "question": "Quel composé peut se décomposer en SiF4 gaz en cas d’excès ?",
+    "expected": "H2SiF6"
+  },
+  {
+    "question": "Quelle est la réaction de décomposition de H2SiF6 en présence de chaleur et H2SO4 ?",
+    "expected": "H2SiF6 → SiF4 + 2 HF"
+  },
+  {
+    "question": "Quelle réaction reconstitue l’acide hexafluorosilicique à partir de SiF4 ?",
+    "expected": "3 SiF4 + 2 H2O → 2 H2SiF6 + SiO2"
+  },
+  {
+    "question": "Quelles phases du gypse sont présentées dans le diagramme de phases du document ?",
+    "expected": "CaSO4·2H2O (dihydrate) et CaSO4·1/2H2O (hémihydrate)"
+  },
+  {
+    "question": "Quels sels peuvent se former à partir des oxydes métalliques dans le procédé ?",
+    "expected": "FePO4, AlPO4, Fe(H2PO4)3·2H2O, Al(H3PO4)2·2H2O et autres sels complexes."
+  },
+  {
+    "question": "Quelle est la réaction globale du procédé d'acide phosphorique ?",
+    "expected": "Ca3(PO4)2·3CaF2·CaCO3 + 11 H2SO4 + 21 H2O → 11 CaSO4·2H2O + 6 H3PO4 + 2 HF + CO2 + chaleur"
+  },
+  {
+    "question": "Quelle est la première étape lorsque le rapport H3PO4/H2SO4 est élevé ?",
+    "expected": "Ca3(PO4)2 + 4 H3PO4 + 3 H2O → 3 CaH4(PO4)2·H2O"
+  }
+]

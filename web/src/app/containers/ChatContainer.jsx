@@ -295,16 +295,16 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
   };
 
   return (
-    <div className="flex flex-col h-[100vh] w-full bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 border-gray-200 dark:border-white/10 shadow-2xl shadow-gray-200/40 dark:shadow-indigo-900/40 backdrop-blur">
+    <div className="flex flex-col h-[100vh] w-full bg-gradient-to-b from-green-50/30 via-white to-green-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 border-gray-200 dark:border-white/10 shadow-2xl shadow-gray-200/40 dark:shadow-green-900/40 backdrop-blur">
       {/* Chat Header */}
       <div className="bg-white/80 dark:bg-slate-900/70 border-b border-gray-200 dark:border-white/10 px-6 py-4 rounded-t-2xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Assistant KnowledgeHub</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Assistant OCP KnowledgeHub</h2>
               <p className="text-sm text-gray-600 dark:text-slate-400">En ligne • Prêt à vous aider</p>
             </div>
           </div>
@@ -346,7 +346,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
                 <div
                   className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                     message.sender === 'user' 
-                      ? 'bg-indigo-600' 
+                      ? 'bg-green-600' 
                       : 'bg-gray-300 dark:bg-slate-700'
                   }`}
                 >
@@ -364,7 +364,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
                   <div
                     className={`inline-block px-4 py-3 rounded-2xl ${
                       message.sender === 'user'
-                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white'
+                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white'
                         : 'bg-white dark:bg-slate-800/70 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-white/10 backdrop-blur'
                     }`}
                   >
@@ -471,7 +471,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
                 <button
                   key={index}
                   onClick={() => setInputMessage(question)}
-                  className="px-3 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-full text-sm text-gray-700 dark:text-slate-200 hover:border-indigo-500 hover:text-indigo-700 dark:hover:text-white transition-colors"
+                  className="px-3 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-full text-sm text-gray-700 dark:text-slate-200 hover:border-green-500 hover:text-green-700 dark:hover:text-white transition-colors"
                 >
                   {question}
                 </button>
@@ -486,14 +486,14 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         <div className="max-w-4xl mx-auto">
           {/* File Attachment Preview */}
           {attachedFile && (
-            <div className="mb-3 p-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-300 dark:border-indigo-500/40 rounded-lg flex items-center justify-between">
+            <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-500/40 rounded-lg flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Paperclip className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
-                <span className="text-sm text-indigo-900 dark:text-indigo-100">{attachedFile.name}</span>
+                <Paperclip className="w-4 h-4 text-green-600 dark:text-green-300" />
+                <span className="text-sm text-green-900 dark:text-green-100">{attachedFile.name}</span>
               </div>
               <button
                 onClick={() => setAttachedFile(null)}
-                className="text-indigo-600 dark:text-indigo-200 hover:text-indigo-900 dark:hover:text-white"
+                className="text-green-600 dark:text-green-200 hover:text-green-900 dark:hover:text-white"
               >
                 ×
               </button>
@@ -509,7 +509,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Posez votre question sur les procédures, documents ou savoir-faire de l'entreprise..."
-                className="w-full bg-white dark:bg-slate-900/70 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-500 px-4 py-3 pr-12 border border-gray-300 dark:border-white/10 rounded-xl resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full bg-white dark:bg-slate-900/70 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-500 px-4 py-3 pr-12 border border-gray-300 dark:border-white/10 rounded-xl resize-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 rows="1"
                 style={{ minHeight: '48px', maxHeight: '120px' }}
               />
@@ -519,7 +519,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
             <button
               onClick={handleSendMessage}
               disabled={(!inputMessage.trim() && !attachedFile) || isLoading}
-              className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:opacity-90 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:opacity-90 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
             >
               {isLoading ? (
                 <RotateCw className="w-4 h-4 animate-spin" />

@@ -308,10 +308,10 @@ export default function LibraryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {sortedFiles.map((file) => (
-              <Link 
-                href={`${Linkfiles}${encodeURIComponent(file.name)}`}
+              <div 
                 key={file.name}
-                className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-white/10 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+                className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-white/10 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+                onClick={() => window.open(`${Linkfiles}${encodeURIComponent(file.name)}`, '_blank')}
               >
                 <div className="flex items-start justify-between mb-3">
                   {getFileIcon(file.name)}
@@ -342,7 +342,7 @@ export default function LibraryPage() {
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate" title={file.name}>
                   {file.name}
                 </h3>
-              </Link>
+              </div>
             ))}
           </div>
         )}
