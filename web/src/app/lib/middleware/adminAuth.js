@@ -25,31 +25,41 @@ export async function verifyAdmin(request) {
     }
 
     if (!token) {
-      return { isAdmin: false, error: 'No authentication token provided' };
+      return { success: false, error: 'No authentication token provided', status: 401 };
     }
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded?.userId) {
-      return { isAdmin: false, error: 'Invalid token' };
+      return { success: false, error: 'Invalid token', status: 401 };
     }
 
     // Get user from database
     await connectDB();
-    const user = await User.findById(decoded.userId).select('role email name');
+    const user = await User.findById(decoded.userId).select('role email name isActive');
     
     if (!user) {
-      return { isAdmin: false, error: 'User not found' };
+      return { success: false, error: 'User not found', status: 404 };
+    }
+
+    if (!user.isActive) {
+      return { success: false, error: 'Account is suspended', status: 403 };
     }
 
     if (user.role !== 'admin') {
-      return { isAdmin: false, error: 'Access denied. Admin privileges required.', user };
+      return { success: false, error: 'Access denied. Admin privileges required.', status: 403 };
     }
 
-    return { isAdmin: true, user };
+    return { success: true, user };
   } catch (error) {
     console.error('Admin verification error:', error);
-    return { isAdmin: false, error: 'Authentication failed' };
+    if (error.name === 'JsonWebTokenError') {
+      return { success: false, error: 'Invalid token', status: 401 };
+    }
+    if (error.name === 'TokenExpiredError') {
+      return { success: false, error: 'Token expired', status: 401 };
+    }
+    return { success: false, error: 'Authentication failed', status: 500 };
   }
 }
 
@@ -75,26 +85,36 @@ export async function verifyUser(request) {
     }
 
     if (!token) {
-      return { isAuthenticated: false, error: 'No authentication token provided' };
+      return { success: false, error: 'No authentication token provided', status: 401 };
     }
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded?.userId) {
-      return { isAuthenticated: false, error: 'Invalid token' };
+      return { success: false, error: 'Invalid token', status: 401 };
     }
 
     // Get user from database
     await connectDB();
-    const user = await User.findById(decoded.userId).select('role email name');
+    const user = await User.findById(decoded.userId).select('role email name isActive');
     
     if (!user) {
-      return { isAuthenticated: false, error: 'User not found' };
+      return { success: false, error: 'User not found', status: 404 };
     }
 
-    return { isAuthenticated: true, user };
+    if (!user.isActive) {
+      return { success: false, error: 'Account is suspended', status: 403 };
+    }
+
+    return { success: true, user };
   } catch (error) {
     console.error('User verification error:', error);
-    return { isAuthenticated: false, error: 'Authentication failed' };
+    if (error.name === 'JsonWebTokenError') {
+      return { success: false, error: 'Invalid token', status: 401 };
+    }
+    if (error.name === 'TokenExpiredError') {
+      return { success: false, error: 'Token expired', status: 401 };
+    }
+    return { success: false, error: 'Authentication failed', status: 500 };
   }
 }

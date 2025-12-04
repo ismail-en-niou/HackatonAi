@@ -23,18 +23,30 @@ import {
   User,
   Zap,
   Trash,
-  Shield
+  Shield,
+  LayoutDashboard,
+  Users,
+  Settings
 } from "lucide-react";
 
 const Navbar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoginedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { showToast, showConfirm } = useNotification();
   const pathname = usePathname();
-  const menuItems = [
+  
+  const baseMenuItems = [
     { id: "home", icon: Home, label: "Accueil", path: "/" },
     { id: "chat", icon: MessageSquare, label: "Chatbot", path: "/chats" },
   ];
+
+  const adminMenuItems = [
+    { id: "admin-dashboard", icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard", adminOnly: true },
+    { id: "admin-users", icon: Users, label: "Gérer Utilisateurs", path: "/admin/users", adminOnly: true },
+  ];
+
+  const [menuItems, setMenuItems] = useState(baseMenuItems);
 
   const [chatHistory, setChatHistory] = useState([]);
   const [user, setUser] = useState(null);
@@ -71,12 +83,22 @@ const Navbar = () => {
     const rawUser = Cookies.get('user');
     if (rawUser) {
       try {
-        setUser(JSON.parse(rawUser));
+        const userData = JSON.parse(rawUser);
+        setUser(userData);
+        
+        // Add admin menu items if user is admin
+        if (userData.role === 'admin') {
+          setMenuItems([...baseMenuItems, ...adminMenuItems]);
+        } else {
+          setMenuItems(baseMenuItems);
+        }
       } catch (e) {
         setUser(null);
+        setMenuItems(baseMenuItems);
       }
     } else {
       setUser(null);
+      setMenuItems(baseMenuItems);
     }
 
     // Fetch chat history (if user logged in, token will be sent via cookie header by the browser automatically)
@@ -95,14 +117,46 @@ const Navbar = () => {
           const merged = [...list, ...local];
           setChatHistory(merged);
         } else {
-          setChatHistory([]);
+          // If no server conversations, just show local chats
+          const local = readLocalChats();
+          setChatHistory(local);
         }
       } catch (error) {
         console.error('Failed to fetch chat history', error);
+        // On error, still show local chats
+        const local = readLocalChats();
+        setChatHistory(local);
       }
     }
 
     fetchHistory();
+
+    // Listen for new chat creation events
+    const handleChatCreated = (event) => {
+      const { conversation } = event.detail;
+      if (conversation) {
+        // Add new conversation to the top of the list
+        setChatHistory(prev => [conversation, ...prev]);
+      }
+    };
+
+    const handleLocalChatCreated = () => {
+      // Refresh local chats
+      const local = readLocalChats();
+      setChatHistory(prev => {
+        // Filter out old local chats and merge with new ones
+        const nonLocal = prev.filter(c => !c.isLocal);
+        return [...local, ...nonLocal];
+      });
+    };
+
+    window.addEventListener('chat-created', handleChatCreated);
+    window.addEventListener('local-chat-created', handleLocalChatCreated);
+
+    return () => {
+      window.removeEventListener('chat-created', handleChatCreated);
+      window.removeEventListener('local-chat-created', handleLocalChatCreated);
+    };
   }, [isCollapsed]);
 
   return (
@@ -181,6 +235,8 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Rechercher des discussions"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
@@ -264,8 +320,15 @@ const Navbar = () => {
           <div className="p-4">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-200 mb-3">Vos conversations</h3>
             <ul className="space-y-1">
-              {chatHistory.map((chat) => (
-                <li key={chat._id || chat.id} className="border-b last:border-b-0">
+              {chatHistory
+                .filter((chat) => {
+                  if (!searchQuery.trim()) return true;
+                  const query = searchQuery.toLowerCase();
+                  const title = (chat.title || 'Discussion sans titre').toLowerCase();
+                  return title.includes(query);
+                })
+                .map((chat) => (
+                <li key={chat._id || chat.id} className="border-b last:border-b-0 border-gray-200 dark:border-green-900/10 pb-2">
                   <div
                     className="group relative flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-slate-900/70 rounded-lg transition-colors"
                     onMouseEnter={() => setHoveredChat(chat)}
@@ -302,11 +365,7 @@ const Navbar = () => {
                         onMouseLeave={() => setHoveredChat(null)}
                         className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded"
                       >
-                        <Zap className={`w-3 h-3 ${
-                          chat.user && user?.id && chat.user === String(user.id) 
-                            ? 'text-green-600 dark:text-green-400' 
-                            : 'text-gray-500 dark:text-slate-500'
-                        }`} />
+                        
                       </button>
                       {/* delete button */}
                       <button
