@@ -107,18 +107,18 @@ const Navbar = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/10">
         <div className={`flex items-center space-x-3 ${isCollapsed ? 'hidden' : 'flex'}`}>
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">KnowledgeHub</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">OCP KnowledgeHub</h1>
             <p className="text-xs text-gray-600 dark:text-slate-400">Savoir Opérationnel</p>
           </div>
         </div>
 
         {/* Collapsed Logo */}
         <div className={`${isCollapsed ? 'flex' : 'hidden'} justify-center w-full`}>
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
             <Bot className="w-5 h-5 text-white" />
           </div>
         </div>
@@ -162,10 +162,10 @@ const Navbar = () => {
                 console.error('Failed to create new chat', err);
               }
             }} 
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:opacity-90 transition-colors shadow-lg shadow-purple-900/40"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-colors shadow-lg shadow-green-900/40"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">New chat</span>
+            <span className="font-medium">Nouvelle discussion</span>
           </button>
         </div>
       )}
@@ -177,8 +177,8 @@ const Navbar = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
             <input
               type="text"
-              placeholder="Search chats"
-              className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              placeholder="Rechercher des discussions"
+              className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-900/70 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
         </div>
@@ -197,13 +197,13 @@ const Navbar = () => {
                   href={item.path}
                   className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
                     isActive
-                      ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
+                      ? 'bg-green-100 dark:bg-green-600/20 text-green-700 dark:text-white border-r-2 border-green-500'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-900/70 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Icon 
                     className={`w-5 h-5 ${
-                      isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-slate-500 group-hover:text-gray-700 dark:group-hover:text-slate-200'
+                      isActive ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-slate-500 group-hover:text-gray-700 dark:group-hover:text-slate-200'
                     }`} 
                   />
                   <span 
@@ -233,19 +233,19 @@ const Navbar = () => {
           <div className="px-3 space-y-1">
             <Link href="/library" className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
                     pathname === '/library'
-                      ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
+                      ? 'bg-green-100 dark:bg-green-600/20 text-green-700 dark:text-white border-r-2 border-green-500'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-900/70 hover:text-gray-900 dark:hover:text-white'
                   }`}>
               <Library className={`w-5 h-5 ${
                 pathname === '/library' 
-                  ? 'text-indigo-600 dark:text-indigo-400' 
+                  ? 'text-green-600 dark:text-green-400' 
                   : 'text-gray-500 dark:text-slate-500'
               }`} />
               <span className="ml-3 font-medium">Bibliothèque</span>
             </Link>
             <Link href="/projects" className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
                       pathname === '/projects'
-                      ? 'bg-indigo-100 dark:bg-indigo-600/20 text-indigo-700 dark:text-white border-r-2 border-indigo-500'
+                      ? 'bg-green-100 dark:bg-green-600/20 text-green-700 dark:text-white border-r-2 border-green-500'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-900/70 hover:text-gray-900 dark:hover:text-white'
                   }`}>
               <FolderOpen className="w-5 h-5 text-gray-500 dark:text-slate-500" />
@@ -269,19 +269,19 @@ const Navbar = () => {
                     onMouseLeave={() => setHoveredChat(null)}
                   >
                     <Link href={chat._id ? `/chats/${chat._id}` : '/chats'} className="flex items-center flex-1">
-                      <div className={`flex-1 overflow-hidden ${chat.isLocal ? 'pl-2 border-l-4 border-emerald-400 bg-emerald-500/10' : (chat.user && user?.id && chat.user === String(user.id) ? 'pl-2 border-l-4 border-indigo-400 bg-indigo-500/10' : '')}`}>
+                      <div className={`flex-1 overflow-hidden ${chat.isLocal ? 'pl-2 border-l-4 border-emerald-400 bg-emerald-500/10' : (chat.user && user?.id && chat.user === String(user.id) ? 'pl-2 border-l-4 border-green-400 bg-green-500/10' : '')}`}>
                         <div className="flex items-center justify-between">
                           <span className={`text-sm truncate block ${
                             chat.user && user?.id && chat.user === String(user.id) 
                               ? 'font-semibold text-gray-900 dark:text-white' 
                               : 'text-gray-700 dark:text-slate-200'
                           }`}>
-                            {chat.title ? (chat.title.length > 10 ? chat.title.slice(0, 10) + '…' : chat.title) : 'Untitled chat'}
+                            {chat.title ? (chat.title.length > 10 ? chat.title.slice(0, 10) + '…' : chat.title) : 'Discussion sans titre'}
                           </span>
                            {chat.isLocal ? (
                              <span className="ml-2 text-xs bg-emerald-500/20 text-emerald-200 px-2 py-0.5 rounded-full">Local</span>
                            ) : (chat.user && user?.id && chat.user === String(user.id) && (
-                             <span className="ml-2 text-xs bg-indigo-500/20 text-indigo-200 px-2 py-0.5 rounded-full">Vous</span>
+                             <span className="ml-2 text-xs bg-green-500/20 text-green-200 px-2 py-0.5 rounded-full">Vous</span>
                            ))}
                         </div>
                         {chat.updatedAt && (
@@ -294,20 +294,20 @@ const Navbar = () => {
 
                     <div className="flex items-center space-x-2 ml-2">
                       <button
-                        title="Preview"
+                        title="Aperçu"
                         onMouseEnter={(e) => { e.stopPropagation(); setHoveredChat(chat); }}
                         onMouseLeave={() => setHoveredChat(null)}
                         className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded"
                       >
                         <Zap className={`w-3 h-3 ${
                           chat.user && user?.id && chat.user === String(user.id) 
-                            ? 'text-indigo-600 dark:text-indigo-400' 
+                            ? 'text-green-600 dark:text-green-400' 
                             : 'text-gray-500 dark:text-slate-500'
                         }`} />
                       </button>
                       {/* delete button */}
                       <button
-                        title="Delete"
+                        title="Supprimer"
                         onClick={async (e) => {
                           e.stopPropagation();
                           const confirmed = await showConfirm({
@@ -380,7 +380,7 @@ const Navbar = () => {
                   </span>
                 )}
               </div>
-              <a href="/profile" className="text-xs text-indigo-600 dark:text-indigo-300 hover:underline">
+              <a href="/profile" className="text-xs text-green-600 dark:text-green-300 hover:underline">
                 Voir le profil
               </a>
             </div>
@@ -391,7 +391,7 @@ const Navbar = () => {
         <div className="p-4 border-t border-gray-200 dark:border-white/10">
           <Link 
             href="/login" 
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:opacity-90 transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-colors"
           >
             <span className="font-medium">Se connecter</span>
           </Link>

@@ -9,7 +9,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Light mode colors (default) */
+/* Light mode colors (default) - OCP Theme */
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
@@ -17,13 +17,16 @@
   --card-border: #e5e7eb;
   --input-bg: #f9fafb;
   --input-border: #d1d5db;
-  --gradient-1: rgba(79,70,229,0.08);
-  --gradient-2: rgba(236,72,153,0.06);
-  --gradient-3: rgba(16,185,129,0.06);
+  --gradient-1: rgba(5,150,105,0.12);
+  --gradient-2: rgba(16,185,129,0.10);
+  --gradient-3: rgba(34,197,94,0.08);
   --gradient-base: #fafafa;
+  --ocp-green: #059669;
+  --ocp-green-light: #10b981;
+  --ocp-green-dark: #047857;
 }
 
-/* Dark mode colors */
+/* Dark mode colors - OCP Theme */
 :root.dark,
 [data-theme="dark"] {
   --background: #050505;
@@ -32,10 +35,13 @@
   --card-border: #2a2a2a;
   --input-bg: #1a1a1a;
   --input-border: #374151;
-  --gradient-1: rgba(79,70,229,0.35);
-  --gradient-2: rgba(236,72,153,0.25);
-  --gradient-3: rgba(16,185,129,0.25);
+  --gradient-1: rgba(5,150,105,0.25);
+  --gradient-2: rgba(16,185,129,0.20);
+  --gradient-3: rgba(34,197,94,0.15);
   --gradient-base: #050505;
+  --ocp-green: #10b981;
+  --ocp-green-light: #34d399;
+  --ocp-green-dark: #059669;
 }
 
 body::before {
