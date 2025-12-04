@@ -384,26 +384,99 @@ export default function LibraryPage() {
 
         {/* Semantic Search Results Info */}
         {searchMode === 'semantic' && semanticResults !== null && (
-          <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-sm text-indigo-900 dark:text-indigo-100">
-                Résultats sémantiques pour "<strong>{query}</strong>" : {semanticResults.length} fichier(s) pertinent(s)
-              </span>
+          <div className="mb-6 space-y-4">
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span className="text-sm text-indigo-900 dark:text-indigo-100">
+                  Résultats sémantiques pour "<strong>{query}</strong>" : {semanticResults.length} fichier(s) pertinent(s)
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setSemanticResults(null);
+                  setQuery('');
+                }}
+                className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                Effacer
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setSemanticResults(null);
-                setQuery('');
-              }}
-              className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
-            >
-              Effacer
-            </button>
+
+            {/* Display Semantic Search Results as Cards */}
+            {semanticResults.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {semanticResults.map((filename) => {
+                  const file = files.find(f => f.name === filename);
+                  if (!file) return null;
+                  
+                  return (
+                    <div 
+                      key={file.name}
+                      className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 rounded-xl shadow-lg border-2 border-indigo-300 dark:border-indigo-700 p-4 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+                      onClick={() => window.open(`${Linkfiles}${encodeURIComponent(file.name)}`, '_blank')}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                          {getFileIcon(file.name)}
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownload(file.name); }}
+                            className="p-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors"
+                            title="Télécharger"
+                          >
+                            <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(file.name); }}
+                              disabled={deleting === file.name}
+                              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                              title="Supprimer (Admin uniquement)"
+                            >
+                              {deleting === file.name ? (
+                                <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                        <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 truncate" title={file.name}>
+                          {file.name}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                        Résultat pertinent
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {semanticResults.length === 0 && (
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-white/10 p-8 text-center">
+                <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Aucun fichier pertinent trouvé pour "<strong>{query}</strong>"
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                  Essayez une recherche différente ou utilisez la recherche simple
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Show regular file list only if not in semantic search mode with results */}
+        {!(searchMode === 'semantic' && semanticResults !== null) && (
+          <>
+            {/* Loading State */}
         {loading && files.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -461,6 +534,8 @@ export default function LibraryPage() {
               </div>
             ))}
           </div>
+        )}
+      </>
         )}
       </div>
     </main>
