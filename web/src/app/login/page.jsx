@@ -62,18 +62,18 @@ const LoginPage = () => {
 
   const validateForm = () => {
     if (!formData.email.trim()) {
-      setError("Email is required");
+      setError("L'adresse e-mail est requise");
       return false;
     }
 
     if (!formData.password) {
-      setError("Password is required");
+      setError("Le mot de passe est requis");
       return false;
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address");
+      setError("Veuillez entrer une adresse e-mail valide");
       return false;
     }
 
@@ -110,11 +110,11 @@ const LoginPage = () => {
         showToast('Connexion réussie !', 'success');
         router.push('/');
       } else {
-        setError(data.error || 'Login failed. Please check your credentials.');
+        setError(data.error || 'Échec de la connexion. Veuillez vérifier vos identifiants.');
         showToast(data.error || 'Échec de la connexion', 'error');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError('Erreur réseau. Veuillez vérifier votre connexion et réessayer.');
       showToast('Erreur réseau', 'error');
     } finally {
       setIsLoading(false);

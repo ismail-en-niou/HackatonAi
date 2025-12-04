@@ -333,7 +333,7 @@ const Navbar = () => {
                         onMouseLeave={() => setHoveredChat(null)}
                         className="p-1 hover:bg-gray-200 dark:hover:bg-slate-900 rounded"
                       >
-
+                        
                       </button>
                       {/* delete button */}
                       <button

@@ -167,6 +167,12 @@ const AdminUsers = () => {
   };
 
   const handleSuspendUser = async (user) => {
+    // Prevent suspending admin accounts
+    if (user.role === 'admin') {
+      showToast('Impossible de suspendre un compte administrateur', 'error');
+      return;
+    }
+
     const action = user.isActive ? 'suspend' : 'activate';
     const confirmed = await showConfirm({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,

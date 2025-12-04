@@ -34,28 +34,28 @@ const RegisterPage = () => {
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setError("Name is required");
+      setError("Le nom est requis");
       return false;
     }
 
     if (!formData.email.trim()) {
-      setError("Email is required");
+      setError("L'adresse e-mail est requise");
       return false;
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address");
+      setError("Veuillez entrer une adresse e-mail valide");
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError("Le mot de passe doit contenir au moins 6 caractères");
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas");
       return false;
     }
 
@@ -89,8 +89,8 @@ const RegisterPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setSuccess("Account created successfully! Redirecting to login...");
-        showToast('Compte créé avec succès !', 'success');
+        setSuccess("Compte créé avec succès ! En attente de l'activation par un administrateur.");
+        showToast('Inscription réussie ! Votre compte sera activé par un administrateur.', 'success');
         
         // Clear form
         setFormData({
@@ -103,13 +103,13 @@ const RegisterPage = () => {
         // Redirect to login after delay
         setTimeout(() => {
           router.push('/login');
-        }, 2000);
+        }, 3000);
       } else {
-        setError(data.error || 'Registration failed. Please try again.');
+        setError(data.error || 'Échec de l\'inscription. Veuillez réessayer.');
         showToast(data.error || 'Échec de l\'inscription', 'error');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError('Erreur réseau. Veuillez vérifier votre connexion et réessayer.');
       showToast('Erreur réseau', 'error');
     } finally {
       setIsLoading(false);
@@ -127,7 +127,7 @@ const RegisterPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: "Demo User",
+          name: "Utilisateur Démo",
           email: `demo${Date.now()}@company.com`,
           password: "demo123",
         }),
@@ -136,15 +136,17 @@ const RegisterPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Auto-login after demo registration
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        router.push('/chat');
+        // Note: Demo users also need admin activation
+        showToast('Compte démo créé. En attente d\'activation.', 'info');
+        setSuccess("Compte démo créé avec succès ! En attente de l'activation par un administrateur.");
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
       } else {
-        setError(data.error || 'Demo registration failed');
+        setError(data.error || 'Échec de la création du compte démo');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('Erreur réseau. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
     }
@@ -152,23 +154,87 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <Link href="/login" className="inline-flex items-center text-sm text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Retour à la connexion
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
-            Créer un compte
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 transition-colors">
-            Rejoignez OCP KnowledgeHub pour accéder aux connaissances de l'entreprise
-          </p>
+      <div className="max-w-6xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row transition-colors">
+        {/* Left Side - OCP Branding */}
+        <div className="md:w-1/2 bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 p-12 flex flex-col justify-center items-center text-white relative overflow-hidden">
+          {/* Decorative Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/3 translate-y-1/3"></div>
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 text-center space-y-6">
+            {/* OCP Logo */}
+            <div className="flex justify-center mb-8">
+              <div className="bg-white rounded-3xl p-6 shadow-2xl">
+                <img 
+                  src="/ocp-logo.png" 
+                  alt="OCP Logo" 
+                  className="w-32 h-32 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-32 h-32 hidden flex-col items-center justify-center">
+                  <div className="text-6xl font-bold text-green-600">OCP</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-4xl font-bold mb-4">
+              Rejoignez OCP
+            </h1>
+            
+            {/* Description */}
+            <p className="text-lg text-green-50 mb-6">
+              Créez votre compte pour accéder à la plateforme de gestion des connaissances
+            </p>
+
+            {/* Features */}
+            <div className="space-y-4 text-left max-w-sm mx-auto">
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
+                <p className="text-green-50">Accès à la documentation complète OCP</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
+                <p className="text-green-50">Assistant IA personnalisé</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
+                <p className="text-green-50">Collaboration en équipe</p>
+              </div>
+            </div>
+
+            {/* Note */}
+            <div className="mt-8 pt-8 border-t border-green-400/30">
+              <div className="bg-green-500/20 rounded-lg p-4 backdrop-blur-sm">
+                <p className="text-sm text-green-50">
+                  <strong>Note :</strong> Votre compte sera activé par un administrateur après inscription.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Register Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-colors">
+        {/* Right Side - Register Form */}
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center transition-colors">
+          {/* Header */}
+          <div className="mb-8">
+            <Link href="/login" className="inline-flex items-center text-sm text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 mb-4 transition-colors">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Retour à la connexion
+            </Link>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+              Créer un compte
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors">
+              Remplissez le formulaire pour rejoindre OCP KnowledgeHub
+            </p>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -223,7 +289,7 @@ const RegisterPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                  placeholder="your.email@ocp.com"
+                  placeholder="votre.email@ocp.com"
                   disabled={isLoading}
                 />
               </div>
@@ -314,18 +380,14 @@ const RegisterPage = () => {
                 "Créer un compte"
               )}
             </button>
-          </form>
 
-          {/* Demo Register */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <button
-              onClick={handleDemoRegister}
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Essayer un compte de démonstration
-            </button>
-          </div>
+            {/* Info Notice */}
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                <strong>Information :</strong> Votre compte sera soumis à l'approbation d'un administrateur avant activation.
+              </p>
+            </div>
+          </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
@@ -334,6 +396,13 @@ const RegisterPage = () => {
               <Link href="/login" className="font-medium text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 transition-colors">
                 Se connecter
               </Link>
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
+              © 2024 OCP Group. Tous droits réservés.
             </p>
           </div>
         </div>

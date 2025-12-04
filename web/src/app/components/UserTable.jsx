@@ -101,12 +101,15 @@ const UserTable = ({ users, onEdit, onDelete, onSuspend, onEmail }) => {
                   </button>
                   <button
                     onClick={() => onSuspend(user)}
+                    disabled={user.role === 'admin'}
                     className={`p-2 hover:bg-opacity-10 rounded-lg transition-colors ${
-                      user.isActive
+                      user.role === 'admin'
+                        ? 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600'
+                        : user.isActive
                         ? 'text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30'
                         : 'text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/30'
                     }`}
-                    title={user.isActive ? 'Suspend user' : 'Activate user'}
+                    title={user.role === 'admin' ? 'Impossible de suspendre un administrateur' : user.isActive ? 'Suspend user' : 'Activate user'}
                   >
                     {user.isActive ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                   </button>

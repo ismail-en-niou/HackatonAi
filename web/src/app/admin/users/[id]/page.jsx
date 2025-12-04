@@ -158,6 +158,12 @@ const EditUser = ({ params }) => {
   };
 
   const handleToggleStatus = async () => {
+    // Prevent suspending admin accounts
+    if (user.role === 'admin') {
+      showToast('Impossible de suspendre un compte administrateur', 'error');
+      return;
+    }
+
     const action = user.isActive ? 'suspend' : 'activate';
     const confirmed = await showConfirm({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
@@ -410,16 +416,20 @@ const EditUser = ({ params }) => {
               <div className="space-y-3">
                 <button
                   onClick={handleToggleStatus}
+                  disabled={user?.role === 'admin'}
                   className={`w-full px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                    user?.isActive
+                    user?.role === 'admin'
+                      ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                      : user?.isActive
                       ? 'bg-orange-600 hover:bg-orange-700 text-white'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
+                  title={user?.role === 'admin' ? 'Impossible de suspendre un administrateur' : ''}
                 >
                   {user?.isActive ? (
                     <>
                       <Ban className="w-4 h-4" />
-                      <span>Suspend User</span>
+                      <span>{user?.role === 'admin' ? 'Admin protégé' : 'Suspend User'}</span>
                     </>
                   ) : (
                     <>

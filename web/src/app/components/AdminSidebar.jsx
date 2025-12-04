@@ -64,7 +64,7 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <nav className={`h-screen flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-80'} bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white border-r border-amber-500/20 shadow-2xl shadow-amber-500/10`}>
+    <nav className={`h-screen flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-80'} bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white border-r border-amber-500/20 shadow-2xl shadow-amber-500/10 ${isCollapsed ? 'overflow-visible' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-amber-500/20">
         <div className={`flex items-center space-x-3 ${isCollapsed ? 'hidden' : 'flex'}`}>
@@ -135,12 +135,7 @@ const AdminSidebar = () => {
                     {item.label}
                   </span>
                   
-                  {/* Tooltip for collapsed state */}
-                  {isCollapsed && (
-                    <div className="absolute left-full ml-2 px-2 py-1 bg-green-600 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 border border-green-500/30">
-                      {item.label}
-                    </div>
-                  )}
+                  {/* Tooltip for collapsed state - removed to avoid overflow issues */}
                 </Link>
               </li>
             );
