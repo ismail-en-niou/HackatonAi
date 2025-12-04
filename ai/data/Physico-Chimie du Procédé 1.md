@@ -153,27 +153,42 @@ Les phosphates naturels sont formØs principalement de carbonato-fluorapatite de
 
 La rØaction principale d'attaque par l'acide sulfurique est:
 
-<!-- formula-not-decoded -->
+Ca3(PO4)2 + 3 H2SO4 + 6 H2O
+->
+<-
+3 CaSO4 . 2 H2O↓ + 2 H3PO4 + chaleur
 
 Lorsque le rapport H3PO4/H2SO4 dans le milieu rØactionnel est ØlevØ, on considŁre que cette rØaction globale s'effectue en deux Øtapes:
 
 l'attaque du phosphate par H3PO4, pour former le phosphate monocalcique soluble :
 
-<!-- formula-not-decoded -->
+Ca3(PO4)2 + 4 H3PO4
+->
+<-
+3 CaH4(PO4)2
 
 la rØaction entre le phosphate monocalcique et l' H2SO4 pour former l'acide phosphorique et le gypse :
 
-<!-- formula-not-decoded -->
+3 CaH4(PO4) + 3 H2SO4 + 6 H2O
+->
+<-
+3 CaSO4 . 2 H2O ↓+ 6 H3PO4
 
 Dans le cas de phosphates riches en CaCO3, il y a dØcomposition du carbonate avec formation de sulfate et d'anhydride carbonique :
 
-<!-- formula-not-decoded -->
+CaCO3 + H2SO4 + H2O
+->
+<-
+CaSO4 . 2 H2O ↓+ CO2↑
 
 Le CO2 dØgagØ provoque la formation de mousses. Lorsqu'on attaque des roches contenant des matiŁres organiques ces derniŁres  contribuent à stabiliser les mousses.
 
 ParallŁlement il y a attaque du fluorure de calcium pour donner de l'acide fluorhydrique :
 
-<!-- formula-not-decoded -->
+CaF2 + H2SO4 + 2 H2O
+->
+<-
+CaSO4 . 2 H2O + 2 HF
 
 ## PRAYON TECHNOLOGIES S.A.
 
@@ -185,7 +200,10 @@ Contrat n° : 00050-0805/7
 
 Donc il y a destruction du complexe fluophosphocarbonate suivant la rØaction globale:
 
-<!-- formula-not-decoded -->
+[Ca3(PO4)2 ] 3 CaF2 . CaCO3 + 11 H2SO4 + 21 H2O
+->
+<-
+11 CaSO4.2 H2O + 6 H3PO4 + 2 HF + CO2 + chaleur
 
 ## 2.1.2. Les rØactions secondaires
 
@@ -195,21 +213,33 @@ Tous les phosphates contiennent un peu de silice.  Il y a donc action de l'acide
 
 La silice rØagit avec HF. La proportion de HF participant à cette rØaction dØpend de la teneur en silice du phosphate
 
-<!-- formula-not-decoded -->
+6 HF + SiO2
+->
+<-
+H2SiF6 + 2 H2O
 
 La rØpartition du fluor dans l'acide phosphorique produit et dans le gâteau de gypse dØpend des rapports SiO2/F et Na2O/F dans le phosphate.
 
 Le Na2O ou le K2O rØagissent avec le H2SiF6
 
-<!-- formula-not-decoded -->
+H2SiF6 + Na2O
+->
+<-
+Na2SiF6↓ + H2O
 
 Ces prØcipitØs se dØposent dans les appareils sous forme d'Øcailles dures.  En cas de dØfaut de Na2O ou de K2O dans le phosphate, l'excŁs de H2SiF6 formØ se dØcompose
 
-<!-- formula-not-decoded -->
+H2SiF6
+->
+<-
+2 HF + Si F4 gazeux
 
 Dans la production d'acide phosphorique faible, SiF4 a une tension de vapeur plus ØlevØe que HF. C'est pourquoi il se dØgage plus facilement. Par consØquent, lors de l'absorption des gaz dans l'eau se forment un prØcitØ de silice et une solution de H2SiF6 :
 
-<!-- formula-not-decoded -->
+3 SiF4 + n H2O
+->
+<-
+SiO2 + (n-2) H2O + 2 H2SiF6
 
 ## PRAYON TECHNOLOGIES S.A.
 
@@ -283,11 +313,21 @@ Le SiF4 et le HF se solubilisent dans l'eau et sont ainsi enlevØs des gaz. Cett
 
 Les rØactions de solubilisation sont les suivantes:
 
-<!-- formula-not-decoded -->
+3 SiF4g
+->
+<-
+3 SiF4liq + 4 H2O
+->
+<-
+SiO2.H2O  + 2 H2SiF6
 
-<!-- formula-not-decoded -->
-
-<!-- formula-not-decoded -->
+4 HFg
+->
+<-
+4 Hfliq +  SiO2
+->
+<-
+SiF4liq + 2 H2O
 
 ## 2.2. Influence des impuretØs contenues dans le phosphate
 
@@ -445,15 +485,15 @@ Contrat n° : 00050-0805/7
 
 La quantitØ de gypse produite par kg de phosphate mis en oeuvre dØpend tout d'abord des conditions d'attaque. Elle est dØterminØe par le coefficient de conversion
 
-<!-- formula-not-decoded -->
+X= (masse de gypse séché à 250 °C) / (masse de phosphate correspondant )
 
 soit encore
 
-<!-- formula-not-decoded -->
+X= (% CaO dans phosphate sec - % CaO dans l’acide produit x Z) / (% CaO dans gypse séché à 250°C)
 
 avec
 
-<!-- formula-not-decoded -->
+Z= (% P205 dans phosphate sec) / (% P205 dans acide produit)
 
 % P205 dans acide produit
 
@@ -516,8 +556,6 @@ FIGURE8Solubilite du gypse dans l'acide phosphorique pur en fonction de la teneu
 FIGURE
 
 Solubilite du gypse dans les solutions aqueuses d'acide phosphorique a 25 °C sous forme de:
-
-<!-- formula-not-decoded -->
 
 ## PRAYON TECHNOLOGIES S.A.
 
@@ -1023,7 +1061,10 @@ Viscosite des solutions d'acide phosphorique produit respectivement a 36 et 54 %
 
 L'acide phosphorique avant concentration contient en solution de l'acide fluosilicique. Cet acide est chauffØ et donne lieu au dØgagement de vapeur d'eau, d'acide fluorhydrique ainsi que de SiF4 suivant la rØaction:
 
-<!-- formula-not-decoded -->
+H2SiF6 + chaleur
+->
+<-
+2 HF + SiF4
 
 DŁs lors, il s'Øtablit un Øquilibre entre le H2SiF6 contenu dans l'acide phosphorique et les vapeurs de HF et de SiF4. Cet Øquilibre dØpend d'un certain nombre de facteurs:
 
