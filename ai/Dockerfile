@@ -10,9 +10,6 @@ RUN apt-get update && apt-get upgrade -y && \
 # Install uv (official recommended installer)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
 # Ensure uv (installed under /root/.local/bin) and ollama (/usr/local/bin) are in PATH
 ENV PATH="/root/.cargo/bin:/root/.local/bin:/usr/local/bin:${PATH}"
 

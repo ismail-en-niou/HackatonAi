@@ -2,7 +2,7 @@ from ollama import Client
 import os
 from db_management.db_manager import get_relevant_chunks
 
-client = Client(host="http://host.docker.internal:11434")
+client = Client(host="http://localhost:11434")
 
 def query_llm(query):
     chunks = get_relevant_chunks(query, n=3)
