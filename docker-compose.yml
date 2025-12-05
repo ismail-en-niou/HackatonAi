@@ -8,8 +8,8 @@ services:
       NODE_ENV: development
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      MONGODB_URI: mongodb://mongo:27017/mydb
-      AI_URL: http://ai:8000
+      MONGODB_URI: mongodb://localhost:27017/mydb
+      AI_URL: http://localhost:8000
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -20,8 +20,7 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-    networks:
-      - default
+    network_mode: host
 
   mongo:
     image: mongo:6.0
@@ -37,25 +36,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - default
-
-  ai:
-    build:
-      context: ./ai
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./ai/data:/app/data
-      - ./ai/data_raw:/app/data_raw
-      - ./ai/src:/app/src
-      - chroma_db:/app/chroma_db
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    networks:
-      - default
+    network_mode: host
 
 volumes:
   mongo_data:

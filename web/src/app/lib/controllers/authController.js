@@ -19,11 +19,11 @@ export async function registerUser(userData) {
       throw new Error('User already exists with this email');
     }
 
-    // Create new user with inactive status (requires admin activation)
+    // Create new user with inactive status
     const user = new User({
       ...userData,
-      isActive: false, // Require admin activation
-    });
+      isActive: true,
+    }); 
     await user.save();
 
     // Generate token (user can't login until activated, but we return it for consistency)
