@@ -104,6 +104,9 @@ def get_file(filename: str):
 @app.post("/query")
 def query_endpoint(query: str = Body(..., embed=True)):
     answer = query_llm(query)
+    files_md = answer["context_files"]
+    files = [list(DATA_DIR.glob(f"{f.split(".")[0]}.*"))[0].name for f in files_md]
+    answer["context_files"] = files
     return answer
 
 
