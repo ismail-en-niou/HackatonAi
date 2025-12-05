@@ -337,16 +337,6 @@ const LoginPage = () => {
               </Link>
             </p>
           </div>
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
-              © 2024 OCP Group. All rights reserved.
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 transition-colors">
-              Operational knowledge management system
-            </p>
-          </div>
         </div>
 
 

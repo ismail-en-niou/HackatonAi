@@ -48,7 +48,6 @@ services:
       - "8000:8000"
     volumes:
       - ./ai/data:/app/data
-      - ./ai/data_raw:/app/data_raw
       - ./ai/src:/app/src
       - chroma_db:/app/chroma_db
     environment:
