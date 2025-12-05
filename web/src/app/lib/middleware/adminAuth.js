@@ -49,8 +49,8 @@ export async function verifyAdmin(request) {
     if (user.role !== 'admin') {
       return { success: false, error: 'Access denied. Admin privileges required.', status: 403 };
     }
-
-    return { success: true, user };
+    console.log('Admin verified:', user.email);
+    return { success: true, user , isAdmin: true};
   } catch (error) {
     console.error('Admin verification error:', error);
     if (error.name === 'JsonWebTokenError') {

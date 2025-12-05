@@ -61,7 +61,7 @@ export async function GET() {
 export async function POST(request) {
   // Verify admin access
   const { isAdmin, error, user } = await verifyAdmin(request);
-  
+  console.log('Admin verification:', { isAdmin, error, user });
   if (!isAdmin) {
     return NextResponse.json(
       { success: false, error: error || 'Access denied. Admin privileges required.' },
