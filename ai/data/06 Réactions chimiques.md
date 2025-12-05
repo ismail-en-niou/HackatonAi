@@ -50,9 +50,9 @@ La forme cristalline du sulfate de calcium est fonction des caractØristiques ph
 
 ## Diagramme de phases - CaSO 4
 
-<!-- image -->
-
-<!-- image -->
+Axes du diagramme :
+Axe vertical (Y) : Température en degrés Celsius (°C), allant de 0 à plus de 100°C
+Axe horizontal (X) : Pourcentage en poids de P₂O₅ (Weight % P₂O₅), allant de 0 à plus de 50%
 
 ## CHIMIE DU PROCEDE
 

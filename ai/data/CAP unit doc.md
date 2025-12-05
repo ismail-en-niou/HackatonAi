@@ -19,7 +19,30 @@ Avec une capacité donnée, suffisamment de vapeur doit être fournie pour obten
 
 Il y a trois échelons d'évaporation J, K et L identiques dans lesquels chacun est configuré comme indiqué ci-dessous.
 
-<!-- image -->
+Composants principaux :
+Section d'alimentation :
+Entrée d'acide (Feed acid)
+Vapeur (Steam)
+Réchauffeur (Heater)
+Pompe de circulation (Circulation pump)
+Zone de réaction et séparation :
+Chambre flash (Flash chamber) - grand réservoir cylindrique central
+Séparateur d'entraînement (Entrainment separator)
+Épurateurs FSA (FSA scrubbers)
+Section de condensation :
+Condenseur évaporateur (Evaporator condenser)
+Condenseur éjecteur (Ejector condenser)
+Flux MP Steam (vapeur moyenne pression)
+Équipements auxiliaires :
+Pompe à produit (Product pump)
+Pompe à vide (Vacuum pump)
+Puisard du joint du condenseur (Condenser seal sump)
+Flux du procédé :
+Le condensat entre dans le système
+L'acide et la vapeur sont chauffés et traités dans la chambre flash
+Les vapeurs passent par les séparateurs et épurateurs
+Le condensat de procédé est récupéré
+L'acide produit (Product acid) sort du système
 
 | JACOBS   | Usine de production d'acide phosphorique Manuel Opératoire   | Document :   | Rév. : C         |
 |----------|--------------------------------------------------------------|--------------|------------------|
@@ -27,9 +50,7 @@ Il y a trois échelons d'évaporation J, K et L identiques dans lesquels chacun 
 
 L'équipement de protection individuel requis pour la zone de concentration est le suivant
 
-<!-- image -->
-
-<!-- image -->
+Protection des yeux obligatoire, protection auditive obligatoire dans cette zone, casques de sécurité obligatoires, chaussures de sécurité obligatoires dans cette zone.
 
 ## 7.2. Fonctionnement normal
 
