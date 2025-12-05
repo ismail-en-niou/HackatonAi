@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useNotification } from "../components/NotificationProvider";
-import { Send, Paperclip, Mic, Bot, User, ThumbsUp, ThumbsDown, Copy, RotateCw, Trash, Eraser } from "lucide-react";
+import { Send, Paperclip, Mic, Bot, User, ThumbsUp, ThumbsDown, Copy, RotateCw, Trash, Eraser, FileText, Download } from "lucide-react";
 
 export const ChatContainer = ({ initialMessages = null, conversationId = null }) => {
   // initialize messages from initialMessages prop if provided
@@ -89,12 +89,14 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         // create local id if needed
         let localId = savedConversationId;
         if (!localId || !String(localId).startsWith('local:')) {
-          const newId = `local:${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+          // Generate unique ID with timestamp and random string
+          const newId = `local:${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
           localId = newId;
         }
 
         // Create or update conversation in local storage
         let conv = localChats.find((c) => c._id === localId);
+        const isNewConversation = !conv;
         if (!conv) {
           // Generate title for new chat
           const firstUserMessage = messagesToPersist.find(m => m.sender === 'user');
@@ -107,6 +109,12 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         conv.updatedAt = new Date().toISOString();
         try { localStorage.setItem(key, JSON.stringify(localChats)); } catch (e) { console.error('Failed to save local chats', e); }
         setSavedConversationId(localId);
+        
+        // Trigger storage event to update Navbar
+        if (isNewConversation) {
+          window.dispatchEvent(new Event('local-chat-created'));
+        }
+        
         return conv;
       }
       if (savedConversationId && !String(savedConversationId).startsWith('local:')) {
@@ -139,6 +147,12 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         const data = await res.json();
         if (data?.success && data.conversation?._id) {
           setSavedConversationId(data.conversation._id);
+          
+          // Trigger event to update Navbar with new conversation
+          window.dispatchEvent(new CustomEvent('chat-created', { 
+            detail: { conversation: data.conversation } 
+          }));
+          
           // push route to the new conversation if we're not already in a detail view
           if (!conversationId) {
             router.push(`/chats/${data.conversation._id}`);
@@ -154,21 +168,16 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
   const handleSendMessage = async () => {
     if (!inputMessage.trim() && !attachedFile) return;
 
+    const userMessageText = inputMessage;
     const userMessage = {
       id: messages.length + 1,
-      text: inputMessage,
+      text: userMessageText,
       sender: "user",
       timestamp: new Date(),
       file: attachedFile
     };
 
     setMessages(prev => [...prev, userMessage]);
-    // Persist user message (create or append conversation)
-    try {
-      await persistMessages([userMessage]);
-    } catch (err) {
-      console.error('Persist user message failed', err);
-    }
     setInputMessage("");
     setAttachedFile(null);
     setIsLoading(true);
@@ -183,7 +192,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         method: 'POST',
         headers,
         credentials: 'same-origin',
-        body: JSON.stringify({ query: inputMessage }),
+        body: JSON.stringify({ query: userMessageText }),
       });
 
       const data = await res.json();
@@ -199,10 +208,12 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
       };
 
       setMessages(prev => [...prev, botResponse]);
+      
+      // Persist both messages together after getting bot response
       try {
-        await persistMessages([botResponse]);
+        await persistMessages([userMessage, botResponse]);
       } catch (err) {
-        console.error('Persist bot response failed', err);
+        console.error('Persist messages failed', err);
       }
     } catch (err) {
       console.error('AI query failed', err);
@@ -214,6 +225,12 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
         liked: null
       };
       setMessages(prev => [...prev, botResponse]);
+      // Persist error response too
+      try {
+        await persistMessages([userMessage, botResponse]);
+      } catch (err) {
+        console.error('Persist messages failed', err);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -247,15 +264,48 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
     navigator.clipboard.writeText(text);
   };
 
+  const handleSourceClick = async (e, source) => {
+    e.preventDefault();
+    
+    const filename = source.filename || source.title || '';
+    const url = source.url || source.link || `${process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000/files/'}${encodeURIComponent(filename)}`;
+    
+    try {
+      // Try to open the file
+      const response = await fetch(url, { method: 'HEAD' });
+      
+      if (response.ok) {
+        // File exists, open in new tab
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } else {
+        // File not accessible, download it
+        handleDownloadSource(filename);
+      }
+    } catch (error) {
+      // On error, try to download
+      console.error('Error accessing file:', error);
+      handleDownloadSource(filename);
+    }
+  };
+
+  const handleDownloadSource = (filename) => {
+    if (!filename) return;
+    
+    const url = `${process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000/files/'}${encodeURIComponent(filename)}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const formatTime = (date) => {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
 
   const suggestedQuestions = [
-    "Quelles sont les procédures de sécurité ?",
-    "Comment créer un nouveau projet ?",
-    "Où trouver les rapports techniques ?",
-    "Qui contacter pour les formations ?"
   ];
 
   const handleDeleteConversation = async () => {
@@ -313,7 +363,7 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
     setMessages([
       {
         id: 1,
-        text: "Bonjour ! Je suis votre assistant KnowledgeHub. Comment puis-je vous aider à trouver des informations aujourd'hui ?",
+        text: "Bonjour ! Je suis votre assistant de connaissances ocp. Comment puis-je vous aider à trouver des informations aujourd'hui ?",
         sender: "bot",
         timestamp: new Date(),
         liked: null
@@ -413,9 +463,23 @@ export const ChatContainer = ({ initialMessages = null, conversationId = null })
                       <div className="mt-3 space-y-2">
                         <p className="text-xs font-medium text-gray-600 dark:text-slate-300 mb-2">Sources pertinentes :</p>
                         {message.sources.map((source, index) => (
-                          <div key={index} className="p-2 bg-gray-50 dark:bg-slate-900/60 rounded-lg border border-gray-200 dark:border-white/5">
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{source.title}</p>
-                            <p className="text-xs text-gray-600 dark:text-slate-300 mt-1">{source.excerpt}</p>
+                          <div
+                            key={index}
+                            onClick={(e) => handleSourceClick(e, source)}
+                            className="block p-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 rounded-lg border-2 border-green-200 dark:border-green-700/50 hover:border-green-400 dark:hover:border-green-500 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-pointer group"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors flex items-center gap-2">
+                                  <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                  {source.title || source.filename || 'Document'}
+                                </p>
+                                {source.excerpt && (
+                                  <p className="text-xs text-gray-600 dark:text-slate-300 mt-1 line-clamp-2">{source.excerpt}</p>
+                                )}
+                              </div>
+                              <Download className="w-4 h-4 text-green-600 dark:text-green-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0" />
+                            </div>
                           </div>
                         ))}
                       </div>
