@@ -89,8 +89,8 @@ const RegisterPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setSuccess("Compte créé avec succès ! En attente de l'activation par un administrateur.");
-        showToast('Inscription réussie ! Votre compte sera activé par un administrateur.', 'success');
+        setSuccess("Compte créé et activé ! Vous pouvez vous connecter.");
+        showToast('Inscription réussie ! Votre compte est actif.', 'success');
         
         // Clear form
         setFormData({
@@ -116,41 +116,6 @@ const RegisterPage = () => {
     }
   };
 
-  const handleDemoRegister = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: "Utilisateur Démo",
-          email: `demo${Date.now()}@company.com`,
-          password: "demo123",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Note: Demo users also need admin activation
-        showToast('Compte démo créé. En attente d\'activation.', 'info');
-        setSuccess("Compte démo créé avec succès ! En attente de l'activation par un administrateur.");
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
-      } else {
-        setError(data.error || 'Échec de la création du compte démo');
-      }
-    } catch (err) {
-      setError('Erreur réseau. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors">
@@ -213,7 +178,7 @@ const RegisterPage = () => {
             <div className="mt-8 pt-8 border-t border-green-400/30">
               <div className="bg-green-500/20 rounded-lg p-4 backdrop-blur-sm">
                 <p className="text-sm text-green-50">
-                  <strong>Note :</strong> Votre compte sera activé par un administrateur après inscription.
+                  <strong>Note :</strong> Les comptes sont actifs immédiatement après l'inscription.
                 </p>
               </div>
             </div>
@@ -399,12 +364,6 @@ const RegisterPage = () => {
             </p>
           </div>
 
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
-              © 2024 OCP Group. Tous droits réservés.
-            </p>
-          </div>
         </div>
       </div>
     </div>

@@ -38,9 +38,34 @@ services:
       start_period: 10s
     network_mode: host
 
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    # ports:
+    #   - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      - OLLAMA_MODELS=/root/.ollama
+    entrypoint: >
+      sh -c "
+      ollama serve &
+      sleep 5 &&
+      ollama pull qwen2.5:7b &&
+      wait
+      "
+
 volumes:
   mongo_data:
   chroma_db:
+  ollama_data:
 networks:
   default:
     driver: bridge
